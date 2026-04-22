@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Axon
 
-## Getting Started
+Paste any study material → daily practice loop: spaced-repetition flashcards,
+error-classified micro-lessons, Socratic tutor, and Live Work problem coach.
 
-First, run the development server:
+Built on Next.js 16 (App Router) + Anthropic Claude Sonnet 4.5. Ships on
+Vercel.
+
+## Local development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local        # then paste your ANTHROPIC_API_KEY
+npm run dev                       # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Without a key, API routes return 500 and the client falls back to the
+built-in demo responses — you can still navigate the whole app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tests
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm test                          # vitest: lib + API route unit/integration (37 cases)
+npm run test:e2e                  # playwright: core study flow against a production build
+npx tsc --noEmit                  # strict typecheck
+npm run build                     # full Next production build
+```
 
-## Learn More
+## Deploying to Vercel (preview)
 
-To learn more about Next.js, take a look at the following resources:
+Run these yourself — they need an interactive browser login and touch
+shared infra:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm install -g vercel             # one-time
+vercel login                      # browser SSO
+cd axon                           # this directory
+vercel                            # first run sets up the project; accept defaults
+vercel env add ANTHROPIC_API_KEY  # paste your key; select Production, Preview, Development
+vercel                            # redeploy preview with the key
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The CLI prints a preview URL like `axon-<hash>.vercel.app`. Open it, run
+through onboarding, generate a deck, study — the three API routes should
+be live.
 
-## Deploy on Vercel
+To promote the preview to production (`axon.study`), run `vercel --prod`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project layout
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+  app/
+    layout.tsx                  # root: fonts (Fraunces, IBM Plex, JetBrains Mono), providers
+    page.tsx                    # / — onboarding landing
+    globals.css                 # design tokens + keyframes + utility classes
+    api/
+      generate-cards/route.ts   # POST → 10 cards from material (+focus/notes)
+      classify-error/route.ts   # POST → error diagnosis + 90s micro-lesson
+      chat/route.ts             # POST → SSE stream for tutor + livework
+    (app)/
+      layout.tsx                # sidebar + topbar + feedback shell
+      dashboard/page.tsx        # Today
+      study/page.tsx            # Daily Study (+ MicroLesson + SessionComplete)
+      coach/page.tsx            # Live Work
+      tutor/page.tsx            # Tutor Chat
+      library/page.tsx          # Decks
+      cohort/page.tsx           # Leaderboard (stub data)
+      roadmap/page.tsx          # Public roadmap
+  components/
+    providers/                  # AppStateProvider, PasteModalContext
+    ui/                         # Btn, Chip, StatTile, Icon map, AxonMark, Spinner, Hairline
+    shell/                      # Sidebar, Topbar, DeckPicker, FeedbackButton
+    modals/PasteMaterialModal.tsx
+    onboarding/Onboarding.tsx, OnboardingStep.tsx
+  lib/
+    api.ts                      # typed fetch helpers + file://-safe fallbacks
+    api-types.ts                # request/response shapes shared server↔client
+    claude.ts                   # SDK client, rate limit, JSON extractor (server-only)
+    cohort.ts                   # stub leaderboard data
+    constants.ts                # MODELS, STORAGE_KEY, LIMITS
+    state.ts                    # AppState, deck helpers, migrations, useLocalState
+test/stubs/                     # vitest shims (server-only)
+e2e/                            # playwright specs
+```
+
+## What's explicitly NOT here (by design, for this session)
+
+- Auth (localStorage is the account). Clerk goes in a later session.
+- Database. Cross-device sync goes in a later session.
+- The Q3 2026 features (Voice Mode, Live Write, Mock Exam) — see
+  `../axon-docs/perplexity-brief-q3-2026.md`.
