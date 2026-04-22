@@ -8,11 +8,7 @@ import { Chip } from "@/components/ui/Chip";
 import { StatTile } from "@/components/ui/StatTile";
 import { AxonMark } from "@/components/ui/AxonMark";
 import { Icon } from "@/components/ui/Icon";
-import {
-  API_AVAILABLE,
-  apiClassifyError,
-  fallbackClassifyError,
-} from "@/lib/api";
+import { API_AVAILABLE, apiClassifyError, fallbackClassifyError } from "@/lib/api";
 import type { Card, ClassifyErrorResponse } from "@/lib/api-types";
 
 type Rating = "again" | "hard" | "good" | "easy";
@@ -31,9 +27,7 @@ export default function StudyPage() {
 
   const [cardIdx, setCardIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const [microLesson, setMicroLesson] = useState<ClassifyErrorResponse | null>(
-    null,
-  );
+  const [microLesson, setMicroLesson] = useState<ClassifyErrorResponse | null>(null);
   const [microLessonLoading, setMicroLessonLoading] = useState(false);
   const [microLessonError, setMicroLessonError] = useState<string | null>(null);
   const [sessionComplete, setSessionComplete] = useState(false);
@@ -73,8 +67,7 @@ export default function StudyPage() {
   const handleRating = async (rating: Rating) => {
     if (!card) return;
     const isWrong = rating === "again";
-    const xpDelta =
-      rating === "again" ? 2 : rating === "hard" ? 8 : rating === "good" ? 15 : 25;
+    const xpDelta = rating === "again" ? 2 : rating === "hard" ? 8 : rating === "good" ? 15 : 25;
     setSessionStats((s) => ({
       correct: s.correct + (isWrong ? 0 : 1),
       wrong: s.wrong + (isWrong ? 1 : 0),
@@ -103,14 +96,9 @@ export default function StudyPage() {
       setSessionComplete(true);
       const xpGained = sessionStats.xpEarned + 25;
       const today = new Date().toDateString();
-      const wasYesterday =
-        state.lastStudyDate === new Date(Date.now() - 86400000).toDateString();
+      const wasYesterday = state.lastStudyDate === new Date(Date.now() - 86400000).toDateString();
       const newStreak =
-        state.lastStudyDate === today
-          ? state.streak
-          : wasYesterday
-            ? state.streak + 1
-            : 1;
+        state.lastStudyDate === today ? state.streak : wasYesterday ? state.streak + 1 : 1;
       update((s) => ({
         ...s,
         xp: s.xp + xpGained,
@@ -129,9 +117,7 @@ export default function StudyPage() {
   if (!card && !sessionComplete) {
     return (
       <div className="fade-in" style={{ padding: "2rem", textAlign: "center" }}>
-        <p style={{ color: "var(--text-dim)", marginBottom: 16 }}>
-          No cards in deck yet.
-        </p>
+        <p style={{ color: "var(--text-dim)", marginBottom: 16 }}>No cards in deck yet.</p>
         <Btn variant="secondary" onClick={exit}>
           Back
         </Btn>
@@ -139,8 +125,7 @@ export default function StudyPage() {
     );
   }
 
-  if (sessionComplete)
-    return <SessionComplete stats={sessionStats} onContinue={exit} />;
+  if (sessionComplete) return <SessionComplete stats={sessionStats} onContinue={exit} />;
 
   if (microLessonLoading || microLesson || microLessonError) {
     return (
@@ -220,10 +205,7 @@ export default function StudyPage() {
         </div>
       </div>
 
-      <div
-        className="flip-container"
-        style={{ flex: 1, maxHeight: 460, marginBottom: 28 }}
-      >
+      <div className="flip-container" style={{ flex: 1, maxHeight: 460, marginBottom: 28 }}>
         <div className={`flip-inner ${flipped ? "flipped" : ""}`}>
           <div
             className="card-face panel"
@@ -262,12 +244,7 @@ export default function StudyPage() {
               {card!.question}
             </div>
             <div style={{ marginTop: 32 }}>
-              <Btn
-                variant="primary"
-                size="lg"
-                onClick={() => setFlipped(true)}
-                icon={Icon.rotate}
-              >
+              <Btn variant="primary" size="lg" onClick={() => setFlipped(true)} icon={Icon.rotate}>
                 Show answer
               </Btn>
             </div>
@@ -366,10 +343,7 @@ export default function StudyPage() {
               >
                 {r.label}
               </div>
-              <div
-                className="font-mono"
-                style={{ fontSize: 10, color: "var(--text-dim)" }}
-              >
+              <div className="font-mono" style={{ fontSize: 10, color: "var(--text-dim)" }}>
                 {r.sub}
               </div>
             </button>
@@ -482,10 +456,7 @@ function MicroLesson({
         }}
       >
         <Icon.alert size={32} color="var(--danger)" />
-        <h2
-          className="italic-serif"
-          style={{ fontSize: 28, marginTop: 16, marginBottom: 8 }}
-        >
+        <h2 className="italic-serif" style={{ fontSize: 28, marginTop: 16, marginBottom: 8 }}>
           Classifier stumbled.
         </h2>
         <p style={{ color: "var(--text-dim)" }}>{error || "No result."}</p>
@@ -548,9 +519,7 @@ function MicroLesson({
         <div className="eyebrow" style={{ marginBottom: 16 }}>
           Diagnosis
         </div>
-        <div
-          style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}
-        >
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
           {Object.entries(classLabels).map(([key, label]) => {
             const active = classification === key;
             return (
@@ -649,8 +618,7 @@ function MicroLesson({
                 fontStyle: "italic",
               }}
             >
-              Weakest link:{" "}
-              <strong style={{ color: "var(--accent)" }}>{brokenLink}</strong>.
+              Weakest link: <strong style={{ color: "var(--accent)" }}>{brokenLink}</strong>.
               That&apos;s where we rebuild.
             </div>
           )}
@@ -680,10 +648,7 @@ function MicroLesson({
           </span>
         </div>
         {microLesson.headline && (
-          <div
-            className="italic-serif"
-            style={{ fontSize: 22, marginBottom: 12, lineHeight: 1.3 }}
-          >
+          <div className="italic-serif" style={{ fontSize: 22, marginBottom: 12, lineHeight: 1.3 }}>
             {microLesson.headline}
           </div>
         )}
@@ -746,13 +711,7 @@ function MicroLesson({
   );
 }
 
-function SessionComplete({
-  stats,
-  onContinue,
-}: {
-  stats: SessionStats;
-  onContinue: () => void;
-}) {
+function SessionComplete({ stats, onContinue }: { stats: SessionStats; onContinue: () => void }) {
   const acc = stats.reviewed > 0 ? stats.correct / stats.reviewed : 0;
   return (
     <div
@@ -772,15 +731,11 @@ function SessionComplete({
         <div className="eyebrow" style={{ marginTop: 16, color: "var(--accent)" }}>
           Session complete
         </div>
-        <h1
-          className="italic-serif"
-          style={{ fontSize: 52, margin: "0.5rem 0", fontWeight: 400 }}
-        >
+        <h1 className="italic-serif" style={{ fontSize: 52, margin: "0.5rem 0", fontWeight: 400 }}>
           Nice work.
         </h1>
         <p style={{ color: "var(--text-dim)" }}>
-          {stats.reviewed} cards reviewed · {Math.round(acc * 100)}% first-pass
-          accuracy
+          {stats.reviewed} cards reviewed · {Math.round(acc * 100)}% first-pass accuracy
         </p>
       </div>
       <div

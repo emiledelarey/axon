@@ -7,11 +7,7 @@ import { Chip } from "@/components/ui/Chip";
 import { Spinner } from "@/components/ui/Spinner";
 import { AxonMark } from "@/components/ui/AxonMark";
 import { Icon } from "@/components/ui/Icon";
-import {
-  API_AVAILABLE,
-  apiChatStream,
-  fallbackChatResponse,
-} from "@/lib/api";
+import { API_AVAILABLE, apiChatStream, fallbackChatResponse } from "@/lib/api";
 
 type Hint = {
   id: number;
@@ -47,9 +43,7 @@ export default function CoachPage() {
     const onChunk = (chunk: unknown) => {
       const c = chunk as { text?: string; error?: string };
       if (c.text) {
-        setHints((h) =>
-          h.map((x) => (x.id === aiHint.id ? { ...x, text: x.text + c.text } : x)),
-        );
+        setHints((h) => h.map((x) => (x.id === aiHint.id ? { ...x, text: x.text + c.text } : x)));
       }
       if (c.error) setError(c.error);
     };
@@ -241,7 +235,8 @@ export default function CoachPage() {
                   lineHeight: 1.6,
                 }}
               >
-                Paste your working, then hit &quot;Check my working&quot; or &quot;Ask for a hint.&quot;
+                Paste your working, then hit &quot;Check my working&quot; or &quot;Ask for a
+                hint.&quot;
                 <br />
                 Axon won&apos;t give you the answer — it&apos;ll help you see the next step.
               </div>
@@ -279,10 +274,7 @@ export default function CoachPage() {
                   >
                     {h.role === "user" ? "You" : "Coach"}
                   </span>
-                  <span
-                    className="font-mono"
-                    style={{ fontSize: 10, color: "var(--text-fade)" }}
-                  >
+                  <span className="font-mono" style={{ fontSize: 10, color: "var(--text-fade)" }}>
                     {h.t}
                   </span>
                 </div>

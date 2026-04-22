@@ -7,10 +7,7 @@ import { Icon } from "../ui/Icon";
 import { Hairline } from "../ui/Hairline";
 
 export function Topbar({ state }: { state: AppState }) {
-  const ranked = useMemo(
-    () => computeCohort(state.xp, state.streak),
-    [state.xp, state.streak],
-  );
+  const ranked = useMemo(() => computeCohort(state.xp, state.streak), [state.xp, state.streak]);
   const userRank = ranked.find((p) => p.isUser)?.rank ?? 0;
 
   return (
@@ -54,10 +51,7 @@ export function Topbar({ state }: { state: AppState }) {
         </div>
       </div>
       <div style={{ flex: 1 }} />
-      <div
-        className="font-mono hide-mobile"
-        style={{ fontSize: 11, color: "var(--text-fade)" }}
-      >
+      <div className="font-mono hide-mobile" style={{ fontSize: 11, color: "var(--text-fade)" }}>
         {new Date()
           .toLocaleDateString("en-AU", {
             weekday: "short",

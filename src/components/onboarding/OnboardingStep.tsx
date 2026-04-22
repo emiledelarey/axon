@@ -61,10 +61,7 @@ export function OnboardingStep({
           paddingTop: 0,
         }}
       >
-        <span
-          className="eyebrow"
-          style={{ textAlign: "center", marginBottom: 14 }}
-        >
+        <span className="eyebrow" style={{ textAlign: "center", marginBottom: 14 }}>
           Step {step} of {total}
         </span>
         <h2

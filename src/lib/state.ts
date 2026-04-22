@@ -87,8 +87,7 @@ export const DEMO_DECK: Card[] = [
     id: "demo_2",
     concept: "Elasticity of demand",
     front: "What makes demand elastic?",
-    question:
-      "If a 10% price rise causes a 25% drop in demand, what is the price elasticity?",
+    question: "If a 10% price rise causes a 25% drop in demand, what is the price elasticity?",
     answer: "-2.5 (elastic)",
     working:
       "E = %ΔQ / %ΔP = -25% / +10% = -2.5. |E| > 1 means demand is elastic — quantity responds sharply to price.",
@@ -98,10 +97,8 @@ export const DEMO_DECK: Card[] = [
     id: "demo_3",
     concept: "Marginal revenue",
     front: "Define MR in one sentence.",
-    question:
-      "Under perfect competition, why does marginal revenue equal the market price?",
-    answer:
-      "Each firm is a price-taker — selling one more unit adds exactly P in revenue.",
+    question: "Under perfect competition, why does marginal revenue equal the market price?",
+    answer: "Each firm is a price-taker — selling one more unit adds exactly P in revenue.",
     working:
       "In perfect competition the firm faces a horizontal demand curve at P. Selling one more unit doesn't lower the price (firm is too small to move the market), so MR = P exactly. Under imperfect competition, extra sales require lowering price, so MR < P.",
     hint: "Think about whether one more unit affects the price the firm can charge.",
@@ -159,9 +156,7 @@ export type NewDeckInput = {
  */
 export function addDeckAsActive(state: AppState, input: NewDeckInput): AppState {
   const currentHasData = Array.isArray(state.deck) && state.deck.length > 0;
-  const currentAsInactive: InactiveDeck[] = currentHasData
-    ? [snapshotActiveAsInactive(state)]
-    : [];
+  const currentAsInactive: InactiveDeck[] = currentHasData ? [snapshotActiveAsInactive(state)] : [];
   const newId = `deck_${Date.now()}`;
   return {
     ...state,
@@ -231,10 +226,7 @@ export function allSubjects(state: AppState): string[] {
  *
  * Takes the URL for referrer capture so it can run during SSR without window.
  */
-export function migrateState(
-  raw: unknown,
-  search?: URLSearchParams,
-): AppState {
+export function migrateState(raw: unknown, search?: URLSearchParams): AppState {
   if (raw === null || raw === undefined) {
     return {
       ...DEFAULT_STATE,
@@ -274,7 +266,10 @@ export function migrateState(
  * writes back on every change. The returned `update` function accepts either a
  * partial patch or a function (state -> state), like useState's setter.
  */
-export function useLocalState(): [AppState, (patch: Partial<AppState> | ((s: AppState) => AppState)) => void] {
+export function useLocalState(): [
+  AppState,
+  (patch: Partial<AppState> | ((s: AppState) => AppState)) => void,
+] {
   const [state, setState] = useState<AppState>(() => {
     if (typeof window === "undefined") return DEFAULT_STATE;
     try {
@@ -295,12 +290,9 @@ export function useLocalState(): [AppState, (patch: Partial<AppState> | ((s: App
     }
   }, [state]);
 
-  const update = useCallback(
-    (patch: Partial<AppState> | ((s: AppState) => AppState)) => {
-      setState((s) => (typeof patch === "function" ? patch(s) : { ...s, ...patch }));
-    },
-    [],
-  );
+  const update = useCallback((patch: Partial<AppState> | ((s: AppState) => AppState)) => {
+    setState((s) => (typeof patch === "function" ? patch(s) : { ...s, ...patch }));
+  }, []);
 
   return [state, update];
 }

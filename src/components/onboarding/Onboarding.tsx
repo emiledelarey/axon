@@ -101,9 +101,7 @@ export function Onboarding({
       }
     } catch (e) {
       setError(
-        e instanceof Error
-          ? e.message
-          : "Couldn't generate. Skip to demo deck or try again.",
+        e instanceof Error ? e.message : "Couldn't generate. Skip to demo deck or try again.",
       );
       setGenerating(false);
     }
@@ -140,10 +138,7 @@ export function Onboarding({
             </span>
           </div>
           <div style={{ flex: 1 }} />
-          <div
-            className="font-mono"
-            style={{ fontSize: 11, color: "var(--text-fade)" }}
-          >
+          <div className="font-mono" style={{ fontSize: 11, color: "var(--text-fade)" }}>
             axon.study
           </div>
         </header>
@@ -175,9 +170,7 @@ export function Onboarding({
             >
               <span className="status-dot live" />
               <span className="eyebrow" style={{ color: "var(--accent)" }}>
-                {state?.referrer
-                  ? `Invited by ${state.referrer} · live now`
-                  : "Live · April 2026"}
+                {state?.referrer ? `Invited by ${state.referrer} · live now` : "Live · April 2026"}
               </span>
             </div>
             <h1
@@ -205,10 +198,9 @@ export function Onboarding({
                 lineHeight: 1.55,
               }}
             >
-              Paste any study material and get a daily practice loop.
-              Spaced-repetition flashcards, error-classified micro-lessons when
-              you slip, and a Socratic tutor that refuses to write your
-              assignment.
+              Paste any study material and get a daily practice loop. Spaced-repetition flashcards,
+              error-classified micro-lessons when you slip, and a Socratic tutor that refuses to
+              write your assignment.
             </p>
             <div
               style={{
@@ -219,12 +211,7 @@ export function Onboarding({
                 flexWrap: "wrap",
               }}
             >
-              <Btn
-                variant="primary"
-                size="lg"
-                icon={Icon.arrowRight}
-                onClick={() => setStep(1)}
-              >
+              <Btn variant="primary" size="lg" icon={Icon.arrowRight} onClick={() => setStep(1)}>
                 Enter Axon
               </Btn>
               <Btn variant="ghost" size="md" onClick={finishWithDemo}>
@@ -266,14 +253,8 @@ export function Onboarding({
               { v: "Socratic", l: "never writes your work" },
               { v: "Claude 4.5", l: "powered by Sonnet" },
             ].map((s, i) => (
-              <div
-                key={i}
-                style={{ display: "flex", alignItems: "baseline", gap: 10 }}
-              >
-                <span
-                  className="italic-serif"
-                  style={{ fontSize: 28, color: "var(--accent)" }}
-                >
+              <div key={i} style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+                <span className="italic-serif" style={{ fontSize: 28, color: "var(--accent)" }}>
                   {s.v}
                 </span>
                 <span className="eyebrow">{s.l}</span>
@@ -548,9 +529,7 @@ export function Onboarding({
               size="lg"
               icon={generating ? undefined : Icon.sparkles}
               onClick={handleGenerate}
-              disabled={
-                !material || material.length < 100 || !label.trim() || generating
-              }
+              disabled={!material || material.length < 100 || !label.trim() || generating}
             >
               {generating ? (
                 <>
@@ -560,12 +539,7 @@ export function Onboarding({
                 "Generate deck"
               )}
             </Btn>
-            <Btn
-              variant="ghost"
-              size="md"
-              onClick={finishWithDemo}
-              disabled={generating}
-            >
+            <Btn variant="ghost" size="md" onClick={finishWithDemo} disabled={generating}>
               Skip — load demo deck →
             </Btn>
           </div>

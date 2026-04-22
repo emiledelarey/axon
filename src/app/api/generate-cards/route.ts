@@ -1,10 +1,6 @@
 import { client, getIp, materialBlock, rateLimit, extractJson } from "@/lib/claude";
 import { LIMITS, MODELS } from "@/lib/constants";
-import type {
-  Card,
-  GenerateCardsRequest,
-  GenerateCardsResponse,
-} from "@/lib/api-types";
+import type { Card, GenerateCardsRequest, GenerateCardsResponse } from "@/lib/api-types";
 
 const SYSTEM_PROMPT = `You are Axon, an AI study companion that turns pasted study material into active-recall flashcards.
 
@@ -25,7 +21,12 @@ Output format: a JSON array of card objects. Each object has: concept (string), 
 
 export async function POST(req: Request): Promise<Response> {
   const ip = getIp(req);
-  if (!rateLimit(ip, { max: LIMITS.rateLimit.generateCardsPerMin, windowMs: LIMITS.rateLimit.windowMs })) {
+  if (
+    !rateLimit(ip, {
+      max: LIMITS.rateLimit.generateCardsPerMin,
+      windowMs: LIMITS.rateLimit.windowMs,
+    })
+  ) {
     return Response.json({ error: "Slow down — try again in a minute." }, { status: 429 });
   }
 
@@ -46,7 +47,9 @@ export async function POST(req: Request): Promise<Response> {
   }
   if (material.length > LIMITS.materialMax) {
     return Response.json(
-      { error: `Material too long. Max ${LIMITS.materialMax.toLocaleString()} characters per deck.` },
+      {
+        error: `Material too long. Max ${LIMITS.materialMax.toLocaleString()} characters per deck.`,
+      },
       { status: 400 },
     );
   }
@@ -73,9 +76,7 @@ export async function POST(req: Request): Promise<Response> {
     const response = await client.messages.create({
       model: MODELS.sonnet,
       max_tokens: 4096,
-      system: [
-        { type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } },
-      ],
+      system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
       messages: [
         {
           role: "user",

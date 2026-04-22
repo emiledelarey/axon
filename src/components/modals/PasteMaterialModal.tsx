@@ -2,12 +2,7 @@
 
 import { useState } from "react";
 import { API_AVAILABLE, apiGenerateCards } from "@/lib/api";
-import {
-  DEMO_DECK,
-  addDeckAsActive,
-  allSubjects,
-  type AppState,
-} from "@/lib/state";
+import { DEMO_DECK, addDeckAsActive, allSubjects, type AppState } from "@/lib/state";
 import { Btn } from "../ui/Button";
 import { Spinner } from "../ui/Spinner";
 import { Icon } from "../ui/Icon";
@@ -26,9 +21,7 @@ export function PasteMaterialModal({
 }) {
   const existingSubjects = allSubjects(state);
   const [subject, setSubject] = useState(existingSubjects[0] || "");
-  const [newSubjectMode, setNewSubjectMode] = useState(
-    existingSubjects.length === 0,
-  );
+  const [newSubjectMode, setNewSubjectMode] = useState(existingSubjects.length === 0);
   const [newSubject, setNewSubject] = useState("");
   const [material, setMaterial] = useState("");
   const [focus, setFocus] = useState("");
@@ -221,8 +214,7 @@ export function PasteMaterialModal({
             <div>
               <span className="eyebrow">Your input</span>
               <div style={{ fontSize: 12, color: "var(--text-fade)", marginTop: 2 }}>
-                Material is required. Focus and notes make the cards{" "}
-                <em>much</em> better.
+                Material is required. Focus and notes make the cards <em>much</em> better.
               </div>
             </div>
           </div>
@@ -300,8 +292,8 @@ export function PasteMaterialModal({
                   lineHeight: 1.5,
                 }}
               >
-                <strong style={{ color: "var(--text)" }}>The source text.</strong>{" "}
-                Paste lecture slides, textbook pages, a problem sheet, or any study material. Min 100 chars.
+                <strong style={{ color: "var(--text)" }}>The source text.</strong> Paste lecture
+                slides, textbook pages, a problem sheet, or any study material. Min 100 chars.
               </div>
               <textarea
                 value={material}
@@ -328,9 +320,7 @@ export function PasteMaterialModal({
                 }}
               >
                 <span>
-                  {material.length < 100
-                    ? `${100 - material.length} more chars`
-                    : "Ready"}
+                  {material.length < 100 ? `${100 - material.length} more chars` : "Ready"}
                 </span>
                 <span>{material.length.toLocaleString()} / 80,000</span>
               </div>
@@ -347,8 +337,9 @@ export function PasteMaterialModal({
                   lineHeight: 1.5,
                 }}
               >
-                <strong style={{ color: "var(--text)" }}>What to weight heavily.</strong>{" "}
-                Tell Axon what your lecturer emphasised, what the exam tends to test, or what you want drilled hardest.
+                <strong style={{ color: "var(--text)" }}>What to weight heavily.</strong> Tell Axon
+                what your lecturer emphasised, what the exam tends to test, or what you want drilled
+                hardest.
               </div>
               <textarea
                 value={focus}
@@ -389,8 +380,9 @@ export function PasteMaterialModal({
                   lineHeight: 1.5,
                 }}
               >
-                <strong style={{ color: "var(--text)" }}>Your own notes or summary.</strong>{" "}
-                Axon reads these to calibrate card depth, spot your misconceptions, and find gaps between what you know and what the material covers.
+                <strong style={{ color: "var(--text)" }}>Your own notes or summary.</strong> Axon
+                reads these to calibrate card depth, spot your misconceptions, and find gaps between
+                what you know and what the material covers.
               </div>
               <textarea
                 value={notes}

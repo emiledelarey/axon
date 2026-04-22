@@ -80,10 +80,7 @@ export function Sidebar({
 
       <DeckPicker state={state} update={update} onAddDeck={onAddDeck} />
 
-      <div
-        className="eyebrow"
-        style={{ padding: "0 0.75rem 0.5rem", color: "var(--text-fade)" }}
-      >
+      <div className="eyebrow" style={{ padding: "0 0.75rem 0.5rem", color: "var(--text-fade)" }}>
         Workspace
       </div>
       <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>

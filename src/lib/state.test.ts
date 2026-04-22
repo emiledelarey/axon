@@ -14,15 +14,23 @@ import type { Card } from "./api-types";
 
 function card(id: string, concept = "Concept"): Card {
   return {
-    id, concept,
-    front: "Front", question: "Q", answer: "A", working: "W", hint: "H",
+    id,
+    concept,
+    front: "Front",
+    question: "Q",
+    answer: "A",
+    working: "W",
+    hint: "H",
   };
 }
 
 function inactiveDeck(id: string, subject = "Finance"): InactiveDeck {
   return {
-    id, subject,
-    material: `material for ${id}`, focus: "", notes: "",
+    id,
+    subject,
+    material: `material for ${id}`,
+    focus: "",
+    notes: "",
     materialLabel: `${subject} — ${id}`,
     cards: [card(`${id}_a`), card(`${id}_b`)],
     errorsByCard: {},

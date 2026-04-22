@@ -80,7 +80,10 @@ export type ChatRequest = {
 
 export type ChatStreamChunk =
   | { text: string }
-  | { done: true; meta: { inputTokens: number; cacheReadInputTokens: number; outputTokens: number } }
+  | {
+      done: true;
+      meta: { inputTokens: number; cacheReadInputTokens: number; outputTokens: number };
+    }
   | { error: string };
 
 export type ApiErrorResponse = { error: string };

@@ -1,10 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import {
-  extractJson,
-  rateLimit,
-  getIp,
-  __resetRateLimits,
-} from "./claude";
+import { extractJson, rateLimit, getIp, __resetRateLimits } from "./claude";
 
 describe("extractJson", () => {
   it("parses raw JSON directly", () => {
@@ -18,7 +13,7 @@ describe("extractJson", () => {
   });
 
   it("strips unlabelled ``` fences and parses", () => {
-    const text = '```\n[1, 2, 3]\n```';
+    const text = "```\n[1, 2, 3]\n```";
     expect(extractJson(text)).toEqual([1, 2, 3]);
   });
 
@@ -33,9 +28,7 @@ describe("extractJson", () => {
   });
 
   it("throws when no JSON is recoverable", () => {
-    expect(() => extractJson("sorry, I cannot comply")).toThrow(
-      /Could not extract JSON/,
-    );
+    expect(() => extractJson("sorry, I cannot comply")).toThrow(/Could not extract JSON/);
   });
 });
 

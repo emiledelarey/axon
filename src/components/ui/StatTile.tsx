@@ -26,10 +26,7 @@ export function StatTile({
         <span className="eyebrow">{label}</span>
         {IconEl && <IconEl size={14} color="var(--text-dim)" />}
       </div>
-      <div
-        className="italic-serif"
-        style={{ fontSize: 32, color: accent, lineHeight: 1 }}
-      >
+      <div className="italic-serif" style={{ fontSize: 32, color: accent, lineHeight: 1 }}>
         {value}
       </div>
       {sub && (

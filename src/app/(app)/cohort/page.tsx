@@ -9,10 +9,7 @@ export default function CohortPage() {
   const ranked = computeCohort(state.xp, state.streak);
 
   return (
-    <div
-      className="fade-in"
-      style={{ padding: "2rem 2.5rem", maxWidth: 900, margin: "0 auto" }}
-    >
+    <div className="fade-in" style={{ padding: "2rem 2.5rem", maxWidth: 900, margin: "0 auto" }}>
       <div style={{ marginBottom: 28 }}>
         <span className="eyebrow">Cohort leaderboard · this week</span>
         <h1
@@ -29,8 +26,8 @@ export default function CohortPage() {
             marginTop: 12,
           }}
         >
-          While Axon is in beta, you&apos;re ranked against the first students to try it.
-          Ship a study session, climb the board.
+          While Axon is in beta, you&apos;re ranked against the first students to try it. Ship a
+          study session, climb the board.
         </p>
       </div>
 
@@ -43,8 +40,7 @@ export default function CohortPage() {
               gridTemplateColumns: "40px 1fr 100px 80px",
               gap: 16,
               padding: "1rem 0",
-              borderBottom:
-                p.rank < ranked.length ? "1px solid var(--border)" : "none",
+              borderBottom: p.rank < ranked.length ? "1px solid var(--border)" : "none",
               alignItems: "center",
               background: p.isUser ? "rgba(0,230,168,0.04)" : "transparent",
               margin: p.isUser ? "0 -1.5rem" : 0,
@@ -75,10 +71,7 @@ export default function CohortPage() {
                   {p.name}
                 </div>
                 {p.isUser && (
-                  <div
-                    className="font-mono"
-                    style={{ fontSize: 10, color: "var(--text-dim)" }}
-                  >
+                  <div className="font-mono" style={{ fontSize: 10, color: "var(--text-dim)" }}>
                     That&apos;s you
                   </div>
                 )}

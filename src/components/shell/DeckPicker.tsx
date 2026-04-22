@@ -16,8 +16,7 @@ export function DeckPicker({
   onAddDeck: () => void;
 }) {
   const [open, setOpen] = useState(false);
-  const totalDecks =
-    (state.deck && state.deck.length > 0 ? 1 : 0) + state.decks.length;
+  const totalDecks = (state.deck && state.deck.length > 0 ? 1 : 0) + state.decks.length;
 
   if (totalDecks === 0) {
     return (
@@ -230,10 +229,7 @@ export function DeckPicker({
                     >
                       {d.materialLabel || "Unnamed"}
                     </div>
-                    <span
-                      className="font-mono"
-                      style={{ fontSize: 10, color: "var(--text-fade)" }}
-                    >
+                    <span className="font-mono" style={{ fontSize: 10, color: "var(--text-fade)" }}>
                       {d.cards.length}
                     </span>
                   </button>

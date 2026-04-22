@@ -31,16 +31,11 @@ const buckets = new Map<string, Bucket>();
  * over the limit for the current window. State is lost on serverless cold starts —
  * this is "good enough for v0"; swap for Vercel KV or Upstash past ~1k DAU.
  */
-export function rateLimit(
-  ip: string,
-  opts: { max: number; windowMs: number },
-): boolean {
+export function rateLimit(ip: string, opts: { max: number; windowMs: number }): boolean {
   const now = Date.now();
   const existing = buckets.get(ip);
   const bucket: Bucket =
-    existing && now <= existing.resetAt
-      ? existing
-      : { count: 0, resetAt: now + opts.windowMs };
+    existing && now <= existing.resetAt ? existing : { count: 0, resetAt: now + opts.windowMs };
   bucket.count += 1;
   buckets.set(ip, bucket);
   return bucket.count <= opts.max;

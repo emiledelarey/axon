@@ -31,7 +31,12 @@ const CLASSIFICATIONS: ErrorClassification[] = [
 
 export async function POST(req: Request): Promise<Response> {
   const ip = getIp(req);
-  if (!rateLimit(ip, { max: LIMITS.rateLimit.classifyOrChatPerMin, windowMs: LIMITS.rateLimit.windowMs })) {
+  if (
+    !rateLimit(ip, {
+      max: LIMITS.rateLimit.classifyOrChatPerMin,
+      windowMs: LIMITS.rateLimit.windowMs,
+    })
+  ) {
     return Response.json({ error: "Slow down — try again in a minute." }, { status: 429 });
   }
 
@@ -51,9 +56,7 @@ export async function POST(req: Request): Promise<Response> {
     const response = await client.messages.create({
       model: MODELS.sonnet,
       max_tokens: 1500,
-      system: [
-        { type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } },
-      ],
+      system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
       messages: [
         {
           role: "user",

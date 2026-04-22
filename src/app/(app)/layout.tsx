@@ -49,9 +49,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           }}
         >
           <Topbar state={state} />
-          <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
-            {children}
-          </div>
+          <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>{children}</div>
         </main>
       </div>
       {showPasteModal && (

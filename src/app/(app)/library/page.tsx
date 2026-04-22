@@ -43,11 +43,7 @@ export default function LibraryPage() {
           <p style={{ color: "var(--text-dim)", marginBottom: 24 }}>
             Paste material to generate 10 cards.
           </p>
-          <Btn
-            variant="primary"
-            onClick={() => setShowPasteModal(true)}
-            icon={Icon.sparkles}
-          >
+          <Btn variant="primary" onClick={() => setShowPasteModal(true)} icon={Icon.sparkles}>
             Paste material
           </Btn>
         </div>
@@ -65,9 +61,7 @@ export default function LibraryPage() {
   const handleDelete = () => {
     if (!state.activeDeckId) return;
     if (
-      !confirm(
-        `Delete "${state.materialLabel}"? This deck and its error history will be removed.`,
-      )
+      !confirm(`Delete "${state.materialLabel}"? This deck and its error history will be removed.`)
     )
       return;
     update((s) => removeDeck(s, s.activeDeckId!));
@@ -101,10 +95,7 @@ export default function LibraryPage() {
   const subjects = Object.keys(grouped).sort();
 
   return (
-    <div
-      className="fade-in"
-      style={{ padding: "2rem 2.5rem", maxWidth: 1000, margin: "0 auto" }}
-    >
+    <div className="fade-in" style={{ padding: "2rem 2.5rem", maxWidth: 1000, margin: "0 auto" }}>
       <div
         style={{
           display: "flex",
@@ -121,9 +112,7 @@ export default function LibraryPage() {
             className="italic-serif"
             style={{ fontSize: 40, margin: "0.5rem 0 0", fontWeight: 400 }}
           >
-            {state.subject && (
-              <span style={{ color: "var(--text-fade)" }}>{state.subject} · </span>
-            )}
+            {state.subject && <span style={{ color: "var(--text-fade)" }}>{state.subject} · </span>}
             {state.materialLabel || "Unnamed deck"}
           </h1>
           <p style={{ color: "var(--text-dim)", fontSize: 13, margin: "8px 0 0" }}>
@@ -305,9 +294,7 @@ export default function LibraryPage() {
                   <div className="eyebrow" style={{ marginBottom: 6 }}>
                     Question
                   </div>
-                  <div
-                    style={{ marginBottom: 14, color: "var(--text)", lineHeight: 1.6 }}
-                  >
+                  <div style={{ marginBottom: 14, color: "var(--text)", lineHeight: 1.6 }}>
                     {card.question}
                   </div>
                   <div className="eyebrow" style={{ marginBottom: 6 }}>

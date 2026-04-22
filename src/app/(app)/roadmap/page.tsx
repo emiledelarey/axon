@@ -42,10 +42,7 @@ export default function RoadmapPage() {
   ];
 
   return (
-    <div
-      className="fade-in"
-      style={{ padding: "2rem 2.5rem", maxWidth: 1200, margin: "0 auto" }}
-    >
+    <div className="fade-in" style={{ padding: "2rem 2.5rem", maxWidth: 1200, margin: "0 auto" }}>
       <div style={{ marginBottom: 40 }}>
         <span className="eyebrow">Public roadmap</span>
         <h1
@@ -62,9 +59,8 @@ export default function RoadmapPage() {
             margin: 0,
           }}
         >
-          We ship the MVP first. Nothing below &quot;Live now&quot; exists yet —
-          this roadmap is a promise, not a product list. Dates are targets,
-          not guarantees.
+          We ship the MVP first. Nothing below &quot;Live now&quot; exists yet — this roadmap is a
+          promise, not a product list. Dates are targets, not guarantees.
         </p>
       </div>
 
@@ -103,12 +99,8 @@ export default function RoadmapPage() {
             </div>
             {ph.items.map((item, j) => (
               <div key={j} style={{ marginBottom: 14 }}>
-                <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 2 }}>
-                  {item.t}
-                </div>
-                <div
-                  style={{ fontSize: 12, color: "var(--text-dim)", lineHeight: 1.5 }}
-                >
+                <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 2 }}>{item.t}</div>
+                <div style={{ fontSize: 12, color: "var(--text-dim)", lineHeight: 1.5 }}>
                   {item.desc}
                 </div>
               </div>

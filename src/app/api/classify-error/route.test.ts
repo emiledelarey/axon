@@ -68,7 +68,7 @@ describe("POST /api/classify-error", () => {
 
     const res = await POST(
       makeReq({
-        material: "WACC = E/V * Re + D/V * Rd * (1-t). " .repeat(5),
+        material: "WACC = E/V * Re + D/V * Rd * (1-t). ".repeat(5),
         card: sampleCard,
         userAnswer: "10.8%",
       }),

@@ -16,18 +16,18 @@ export default function DashboardPage() {
   const [showPasteModal, setShowPasteModal] = useState(false);
 
   const hour = new Date().getHours();
-  const greeting =
-    hour < 12 ? "Morning" : hour < 17 ? "Afternoon" : "Evening";
+  const greeting = hour < 12 ? "Morning" : hour < 17 ? "Afternoon" : "Evening";
   const deck = state.deck || [];
   const weakCards = useMemo(() => {
+    const cards = state.deck || [];
     return Object.entries(state.errorsByCard || {})
-      .map(([id, count]) => ({ id, count, card: deck.find((c) => c.id === id) }))
+      .map(([id, count]) => ({ id, count, card: cards.find((c) => c.id === id) }))
       .filter((x): x is { id: string; count: number; card: NonNullable<(typeof x)["card"]> } =>
         Boolean(x.card && x.count > 0),
       )
       .sort((a, b) => b.count - a.count)
       .slice(0, 3);
-  }, [state.errorsByCard, deck]);
+  }, [state.errorsByCard, state.deck]);
   const ranked = computeCohort(state.xp, state.streak);
   const userRank = ranked.find((p) => p.isUser)?.rank ?? 0;
 
@@ -104,7 +104,11 @@ export default function DashboardPage() {
         <StatTile
           label="Cards"
           value={deck.length}
-          sub={deck.length > 0 ? `~${Math.ceil(deck.length * 0.8)} min to review` : "Generate your deck"}
+          sub={
+            deck.length > 0
+              ? `~${Math.ceil(deck.length * 0.8)} min to review`
+              : "Generate your deck"
+          }
           accent="var(--info)"
           icon={Icon.layers}
         />

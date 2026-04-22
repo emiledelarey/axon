@@ -10,11 +10,7 @@ const AppStateCtx = createContext<Ctx | null>(null);
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const [state, update] = useLocalState();
-  return (
-    <AppStateCtx.Provider value={{ state, update }}>
-      {children}
-    </AppStateCtx.Provider>
-  );
+  return <AppStateCtx.Provider value={{ state, update }}>{children}</AppStateCtx.Provider>;
 }
 
 export function useAppState(): Ctx {

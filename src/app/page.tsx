@@ -20,11 +20,7 @@ export default function Home() {
 
   return (
     <>
-      <Onboarding
-        state={state}
-        update={update}
-        onDone={() => router.push("/dashboard")}
-      />
+      <Onboarding state={state} update={update} onDone={() => router.push("/dashboard")} />
       <FeedbackButton />
     </>
   );

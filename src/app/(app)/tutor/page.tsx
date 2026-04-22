@@ -6,11 +6,7 @@ import { Btn } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { AxonMark } from "@/components/ui/AxonMark";
 import { Icon } from "@/components/ui/Icon";
-import {
-  API_AVAILABLE,
-  apiChatStream,
-  fallbackChatResponse,
-} from "@/lib/api";
+import { API_AVAILABLE, apiChatStream, fallbackChatResponse } from "@/lib/api";
 
 type Msg = { role: "user" | "assistant"; content: string; t: string };
 
@@ -151,10 +147,7 @@ export default function TutorPage() {
               ) : (
                 <span className="eyebrow">You</span>
               )}
-              <span
-                className="font-mono"
-                style={{ fontSize: 10, color: "var(--text-fade)" }}
-              >
+              <span className="font-mono" style={{ fontSize: 10, color: "var(--text-fade)" }}>
                 {m.t}
               </span>
             </div>
@@ -164,9 +157,7 @@ export default function TutorPage() {
                 borderRadius: 10,
                 background: m.role === "user" ? "var(--surface-2)" : "var(--surface)",
                 border:
-                  m.role === "user"
-                    ? "1px solid var(--border-bright)"
-                    : "1px solid var(--border)",
+                  m.role === "user" ? "1px solid var(--border-bright)" : "1px solid var(--border)",
                 fontSize: 14,
                 lineHeight: 1.65,
                 whiteSpace: "pre-wrap",

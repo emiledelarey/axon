@@ -71,7 +71,10 @@ describe("POST /api/generate-cards", () => {
 
     const res = await POST(
       makeReq({
-        material: "The opportunity cost of any action is the value of the next best alternative forgone. ".repeat(5),
+        material:
+          "The opportunity cost of any action is the value of the next best alternative forgone. ".repeat(
+            5,
+          ),
         focus: "Drill me on opportunity cost examples.",
         count: 3,
       }),

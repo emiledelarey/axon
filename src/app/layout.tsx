@@ -28,14 +28,9 @@ export const metadata: Metadata = {
     "Paste any study material. Axon builds you a daily practice loop with spaced repetition, error-classified micro-lessons, and a Socratic tutor.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={`${fraunces.variable} ${plex.variable} ${jet.variable}`}
-    >
+    <html lang="en" className={`${fraunces.variable} ${plex.variable} ${jet.variable}`}>
       <body>
         <Providers>{children}</Providers>
       </body>

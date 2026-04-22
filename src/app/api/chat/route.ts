@@ -32,7 +32,12 @@ function sse(chunk: ChatStreamChunk): string {
 
 export async function POST(req: Request): Promise<Response> {
   const ip = getIp(req);
-  if (!rateLimit(ip, { max: LIMITS.rateLimit.classifyOrChatPerMin, windowMs: LIMITS.rateLimit.windowMs })) {
+  if (
+    !rateLimit(ip, {
+      max: LIMITS.rateLimit.classifyOrChatPerMin,
+      windowMs: LIMITS.rateLimit.windowMs,
+    })
+  ) {
     return Response.json({ error: "Slow down — try again in a minute." }, { status: 429 });
   }
 
@@ -60,9 +65,9 @@ export async function POST(req: Request): Promise<Response> {
   // student's current working so the coach can diagnose the real state of play.
   const built = messages.map((m, i) => {
     if (i === 0 && m.role === "user") {
-      const parts: Array<
-        | { type: "text"; text: string; cache_control?: { type: "ephemeral" } }
-      > = [materialBlock(material)];
+      const parts: Array<{ type: "text"; text: string; cache_control?: { type: "ephemeral" } }> = [
+        materialBlock(material),
+      ];
       if (mode === "livework" && studentWorking) {
         parts.push({
           type: "text",
@@ -84,17 +89,12 @@ export async function POST(req: Request): Promise<Response> {
         const msgStream = client.messages.stream({
           model: MODELS.sonnet,
           max_tokens: 1024,
-          system: [
-            { type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } },
-          ],
+          system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
           messages: built,
         });
 
         for await (const event of msgStream) {
-          if (
-            event.type === "content_block_delta" &&
-            event.delta?.type === "text_delta"
-          ) {
+          if (event.type === "content_block_delta" && event.delta?.type === "text_delta") {
             controller.enqueue(encoder.encode(sse({ text: event.delta.text })));
           }
         }
