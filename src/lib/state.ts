@@ -1,6 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
 import type { Card } from "./api-types";
-import { STORAGE_KEY } from "./constants";
 
 /**
  * A deck that isn't currently active. The active deck's fields live at the top
@@ -259,40 +257,4 @@ export function migrateState(raw: unknown, search?: URLSearchParams): AppState {
   }));
 
   return parsed;
-}
-
-/**
- * Client-only React hook. Loads from localStorage on mount (with migration),
- * writes back on every change. The returned `update` function accepts either a
- * partial patch or a function (state -> state), like useState's setter.
- */
-export function useLocalState(): [
-  AppState,
-  (patch: Partial<AppState> | ((s: AppState) => AppState)) => void,
-] {
-  const [state, setState] = useState<AppState>(() => {
-    if (typeof window === "undefined") return DEFAULT_STATE;
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      const parsed = raw ? (JSON.parse(raw) as unknown) : null;
-      return migrateState(parsed, new URLSearchParams(window.location.search));
-    } catch {
-      return migrateState(null, new URLSearchParams(window.location.search));
-    }
-  });
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch {
-      /* quota / private-mode — best effort */
-    }
-  }, [state]);
-
-  const update = useCallback((patch: Partial<AppState> | ((s: AppState) => AppState)) => {
-    setState((s) => (typeof patch === "function" ? patch(s) : { ...s, ...patch }));
-  }, []);
-
-  return [state, update];
 }
