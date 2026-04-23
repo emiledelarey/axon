@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
+import { dark } from "@clerk/themes";
 import { Providers } from "@/components/providers/Providers";
 import "./globals.css";
 
@@ -30,10 +32,29 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${plex.variable} ${jet.variable}`}>
-      <body>
-        <Providers>{children}</Providers>
-      </body>
-    </html>
+    <ClerkProvider
+      appearance={{
+        baseTheme: dark,
+        variables: {
+          colorPrimary: "#00e6a8",
+          colorBackground: "#11172a",
+          colorText: "#eeead8",
+          colorTextSecondary: "#a09b85",
+          colorNeutral: "#1f2847",
+          colorInputBackground: "#0a0e1a",
+          fontFamily: "var(--font-plex), 'IBM Plex Sans', system-ui, sans-serif",
+        },
+        elements: {
+          card: { background: "#11172a", border: "1px solid #1f2847" },
+          headerTitle: { fontFamily: "var(--font-fraunces), Georgia, serif", fontStyle: "italic" },
+        },
+      }}
+    >
+      <html lang="en" className={`${fraunces.variable} ${plex.variable} ${jet.variable}`}>
+        <body>
+          <Providers>{children}</Providers>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

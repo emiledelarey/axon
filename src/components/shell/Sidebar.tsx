@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
+import { UserButton } from "@clerk/nextjs";
 import type { AppState } from "@/lib/state";
 import { Icon, type IconComponent } from "../ui/Icon";
 import { AxonMark } from "../ui/AxonMark";
@@ -24,12 +25,12 @@ const NAV_ITEMS: NavItem[] = [
 export function Sidebar({
   state,
   update,
-  onSignOut,
+  onResetDeck,
   onAddDeck,
 }: {
   state: AppState;
   update: Update;
-  onSignOut: () => void;
+  onResetDeck: () => void;
   onAddDeck: () => void;
 }) {
   const router = useRouter();
@@ -142,27 +143,13 @@ export function Sidebar({
             marginBottom: 8,
           }}
         >
-          <div
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: "50%",
-              background: "var(--surface-2)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid var(--border-bright)",
+          <UserButton
+            appearance={{
+              elements: {
+                avatarBox: { width: 28, height: 28 },
+              },
             }}
-          >
-            <span
-              style={{
-                fontSize: 11,
-                fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
-              }}
-            >
-              {(state.name || "Y").slice(0, 2).toUpperCase()}
-            </span>
-          </div>
+          />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 12 }}>{state.name || "You"}</div>
             <div
@@ -177,7 +164,7 @@ export function Sidebar({
           </div>
         </div>
         <button
-          onClick={onSignOut}
+          onClick={onResetDeck}
           style={{
             display: "flex",
             alignItems: "center",
@@ -191,7 +178,7 @@ export function Sidebar({
             cursor: "pointer",
           }}
         >
-          <Icon.logout size={12} /> Reset deck
+          <Icon.trash size={12} /> Reset deck
         </button>
       </div>
     </aside>

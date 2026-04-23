@@ -36,7 +36,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <Sidebar
           state={state}
           update={update}
-          onSignOut={resetDeck}
+          onResetDeck={resetDeck}
           onAddDeck={() => setShowPasteModal(true)}
         />
         <main

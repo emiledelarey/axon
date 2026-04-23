@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { API_AVAILABLE, apiGenerateCards } from "@/lib/api";
 import { DEMO_DECK, type AppState } from "@/lib/state";
 import { Btn } from "../ui/Button";
@@ -16,12 +17,17 @@ export function Onboarding({
   state,
   update,
   onDone,
+  isSignedIn = false,
 }: {
   state: AppState;
   update: Update;
   onDone: () => void;
+  isSignedIn?: boolean;
 }) {
-  const [step, setStep] = useState(0);
+  const router = useRouter();
+  // Signed-in users skip the hero and the name-prompt step — Clerk already
+  // provided the identity, they just need to paste material.
+  const [step, setStep] = useState(isSignedIn ? 2 : 0);
   const [name, setName] = useState(state?.name || "");
   const [subject, setSubject] = useState(state?.subject || "");
   const [material, setMaterial] = useState(state?.material || "");
@@ -211,10 +217,15 @@ export function Onboarding({
                 flexWrap: "wrap",
               }}
             >
-              <Btn variant="primary" size="lg" icon={Icon.arrowRight} onClick={() => setStep(1)}>
+              <Btn
+                variant="primary"
+                size="lg"
+                icon={Icon.arrowRight}
+                onClick={() => router.push("/sign-up")}
+              >
                 Enter Axon
               </Btn>
-              <Btn variant="ghost" size="md" onClick={finishWithDemo}>
+              <Btn variant="ghost" size="md" onClick={() => router.push("/sign-up")}>
                 Skip — load demo deck →
               </Btn>
             </div>
