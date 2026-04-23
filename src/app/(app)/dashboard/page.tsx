@@ -8,7 +8,6 @@ import { Chip } from "@/components/ui/Chip";
 import { StatTile } from "@/components/ui/StatTile";
 import { Icon } from "@/components/ui/Icon";
 import { PasteMaterialModal } from "@/components/modals/PasteMaterialModal";
-import { computeCohort } from "@/lib/cohort";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -28,8 +27,10 @@ export default function DashboardPage() {
       .sort((a, b) => b.count - a.count)
       .slice(0, 3);
   }, [state.errorsByCard, state.deck]);
-  const ranked = computeCohort(state.xp, state.streak);
-  const userRank = ranked.find((p) => p.isUser)?.rank ?? 0;
+
+  const topWeak = weakCards[0];
+  const estMinutes = Math.max(1, Math.ceil(deck.length * 0.8));
+  const hasDeck = deck.length > 0;
 
   return (
     <div className="fade-in" style={{ padding: "2.5rem", maxWidth: 1400, margin: "0 auto" }}>
@@ -54,16 +55,16 @@ export default function DashboardPage() {
           {greeting}
           {state.name ? `, ${state.name}` : ""}.
         </h1>
-        <p style={{ color: "var(--text-dim)", fontSize: 17, margin: 0, maxWidth: 620 }}>
-          {weakCards.length > 0 ? (
+        <p style={{ color: "var(--text-dim)", fontSize: 17, margin: 0, maxWidth: 640 }}>
+          {topWeak ? (
             <>
               Your weakest concept right now is{" "}
               <span className="italic-serif" style={{ color: "var(--warn)" }}>
-                {weakCards[0].card.concept}
+                {topWeak.card.concept}
               </span>
               . That&apos;s where we&apos;ll start today.
             </>
-          ) : deck.length === 0 ? (
+          ) : !hasDeck ? (
             <>No deck yet. Paste material to generate cards.</>
           ) : state.sessionsCompleted === 0 ? (
             <>
@@ -71,7 +72,7 @@ export default function DashboardPage() {
               <span className="italic-serif" style={{ color: "var(--accent)" }}>
                 {deck.length} cards
               </span>{" "}
-              ready. Start with Daily Study — it takes about 8 minutes.
+              ready. Start with Daily Study — it takes about {estMinutes} minutes.
             </>
           ) : (
             <>Nice work keeping the streak alive. {deck.length} cards in rotation.</>
@@ -82,7 +83,7 @@ export default function DashboardPage() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateColumns: "repeat(3, 1fr)",
           gap: 16,
           marginBottom: 40,
         }}
@@ -104,148 +105,209 @@ export default function DashboardPage() {
         <StatTile
           label="Cards"
           value={deck.length}
-          sub={
-            deck.length > 0
-              ? `~${Math.ceil(deck.length * 0.8)} min to review`
-              : "Generate your deck"
-          }
+          sub={hasDeck ? `~${estMinutes} min to review` : "Generate your deck"}
           accent="var(--info)"
           icon={Icon.layers}
-        />
-        <StatTile
-          label="Cohort rank"
-          value={`#${userRank}`}
-          sub={`of ${ranked.length}`}
-          accent="var(--rose)"
-          icon={Icon.trophy}
         />
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 20 }}>
-        <section className="panel" style={{ padding: "1.75rem" }}>
-          <div
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {/* Primary action — resume hero */}
+          <section
+            className="panel"
             style={{
-              display: "flex",
-              alignItems: "baseline",
-              justifyContent: "space-between",
-              marginBottom: 20,
+              padding: "2rem",
+              borderColor: hasDeck ? "var(--accent-dim)" : "var(--border)",
+              background: hasDeck ? "rgba(0,230,168,0.03)" : "var(--surface)",
             }}
           >
-            <div>
-              <span className="eyebrow">Today&apos;s options</span>
-              <h2
-                className="italic-serif"
-                style={{ fontSize: 26, margin: "0.25rem 0 0", fontWeight: 400 }}
-              >
-                Three ways in.
-              </h2>
-            </div>
-            <Btn
-              variant="secondary"
-              size="sm"
-              icon={Icon.sparkles}
-              onClick={() => setShowPasteModal(true)}
-            >
-              New deck
-            </Btn>
-          </div>
-
-          {[
-            {
-              n: "01",
-              title: "Daily Study",
-              sub: `${deck.length} cards · flashcards + error classifier`,
-              t: `~${Math.ceil(deck.length * 0.8)} min`,
-              href: "/study",
-              disabled: deck.length === 0,
-              live: deck.length > 0,
-            },
-            {
-              n: "02",
-              title: "Live Work",
-              sub: "Paste a problem you're stuck on. AI coaches you through.",
-              t: "as long as needed",
-              href: "/coach",
-              disabled: false,
-              live: false,
-            },
-            {
-              n: "03",
-              title: "Tutor Chat",
-              sub: "Ask anything. Socratic. Knows your material.",
-              t: "unlimited",
-              href: "/tutor",
-              disabled: false,
-              live: false,
-            },
-          ].map((row, i) => (
             <div
-              key={i}
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 16,
-                padding: "1rem 0",
-                borderBottom: i < 2 ? "1px solid var(--border)" : "none",
-                opacity: row.disabled ? 0.5 : 1,
+                gap: 10,
+                marginBottom: 14,
               }}
             >
-              <span className="font-mono" style={{ color: "var(--text-fade)", fontSize: 11 }}>
-                {row.n}
+              <Icon.bolt size={14} color={hasDeck ? "var(--accent)" : "var(--text-dim)"} />
+              <span
+                className="eyebrow"
+                style={{ color: hasDeck ? "var(--accent)" : "var(--text-dim)" }}
+              >
+                {hasDeck ? "Resume where you left off" : "Start your first deck"}
               </span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
+            </div>
+            {hasDeck ? (
+              <>
+                <h2
+                  className="italic-serif"
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    marginBottom: 4,
+                    fontSize: 32,
+                    margin: "0 0 12px",
+                    fontWeight: 400,
+                    lineHeight: 1.2,
                   }}
                 >
-                  <span style={{ fontSize: 15, fontWeight: 500 }}>{row.title}</span>
-                  {row.live && <Chip tone="accent">Ready</Chip>}
+                  {topWeak ? (
+                    <>
+                      Rebuild <span style={{ color: "var(--warn)" }}>{topWeak.card.concept}</span>
+                    </>
+                  ) : (
+                    <>
+                      {state.materialLabel || "Your deck"}{" "}
+                      <span style={{ color: "var(--text-dim)" }}>
+                        · {deck.length} card{deck.length !== 1 ? "s" : ""}
+                      </span>
+                    </>
+                  )}
+                </h2>
+                <p
+                  style={{
+                    fontSize: 14,
+                    color: "var(--text-dim)",
+                    margin: "0 0 24px",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {topWeak ? (
+                    <>
+                      You&apos;ve missed this card{" "}
+                      <span className="font-mono" style={{ color: "var(--warn)" }}>
+                        {topWeak.count}×
+                      </span>{" "}
+                      — today&apos;s session will put it first. About {estMinutes} minutes for the
+                      full deck.
+                    </>
+                  ) : state.sessionsCompleted === 0 ? (
+                    <>First session gets you a streak of 1 and a read on which concepts stick.</>
+                  ) : (
+                    <>
+                      {state.materialLabel ? `${state.materialLabel} · ` : ""}
+                      {deck.length} cards in rotation. ~{estMinutes} minutes.
+                    </>
+                  )}
+                </p>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  <Btn
+                    variant="primary"
+                    size="lg"
+                    icon={Icon.play}
+                    onClick={() => router.push("/study")}
+                  >
+                    Continue today&apos;s study
+                  </Btn>
+                  <Btn
+                    variant="secondary"
+                    size="md"
+                    icon={Icon.sparkles}
+                    onClick={() => setShowPasteModal(true)}
+                  >
+                    New deck
+                  </Btn>
                 </div>
-                <div style={{ fontSize: 12, color: "var(--text-dim)" }}>{row.sub}</div>
-              </div>
-              <span className="font-mono" style={{ fontSize: 12, color: "var(--text-dim)" }}>
-                {row.t}
-              </span>
-              <Btn
-                variant="secondary"
-                size="sm"
-                icon={Icon.chevronRight}
+              </>
+            ) : (
+              <>
+                <h2
+                  className="italic-serif"
+                  style={{
+                    fontSize: 32,
+                    margin: "0 0 12px",
+                    fontWeight: 400,
+                    lineHeight: 1.2,
+                  }}
+                >
+                  Paste any study material to begin.
+                </h2>
+                <p
+                  style={{
+                    fontSize: 14,
+                    color: "var(--text-dim)",
+                    margin: "0 0 24px",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  Lecture notes, textbook pages, a problem set — anything. Axon turns it into 10
+                  flashcards in about 20 seconds.
+                </p>
+                <Btn
+                  variant="primary"
+                  size="lg"
+                  icon={Icon.sparkles}
+                  onClick={() => setShowPasteModal(true)}
+                >
+                  Paste material
+                </Btn>
+              </>
+            )}
+          </section>
+
+          {/* Secondary actions */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            {(
+              [
+                {
+                  title: "Live Work",
+                  sub: "Paste a problem. Get Socratic hints.",
+                  icon: Icon.target,
+                  href: "/coach",
+                },
+                {
+                  title: "Tutor Chat",
+                  sub: "Ask anything. Material-aware.",
+                  icon: Icon.msg,
+                  href: "/tutor",
+                },
+              ] as const
+            ).map((row) => (
+              <button
+                key={row.href}
                 onClick={() => router.push(row.href)}
-                disabled={row.disabled}
+                className="panel"
+                style={{
+                  padding: "1.25rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  gap: 10,
+                  cursor: "pointer",
+                  textAlign: "left",
+                  transition: "all 0.15s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "var(--accent-dim)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "var(--border)";
+                }}
               >
-                Open
-              </Btn>
-            </div>
-          ))}
-
-          <div style={{ marginTop: 20, display: "flex", gap: 12 }}>
-            <Btn
-              variant="primary"
-              size="lg"
-              icon={Icon.play}
-              onClick={() => router.push("/study")}
-              disabled={deck.length === 0}
-            >
-              Start today&apos;s study
-            </Btn>
+                <row.icon size={18} color="var(--accent)" />
+                <div style={{ fontSize: 15, fontWeight: 500 }}>{row.title}</div>
+                <div style={{ fontSize: 12, color: "var(--text-dim)", lineHeight: 1.5 }}>
+                  {row.sub}
+                </div>
+              </button>
+            ))}
           </div>
-        </section>
+        </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        <aside>
           <section className="panel" style={{ padding: "1.5rem" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
               <Icon.alert size={14} color="var(--warn)" />
               <span className="eyebrow">Weak spots</span>
             </div>
             {weakCards.length > 0 ? (
-              weakCards.map((w, i) => (
+              weakCards.map((w) => (
                 <div
-                  key={i}
-                  style={{ display: "flex", alignItems: "center", gap: 12, padding: "0.6rem 0" }}
+                  key={w.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: "0.6rem 0",
+                  }}
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 13, marginBottom: 4 }}>{w.card.concept}</div>
@@ -259,6 +321,7 @@ export default function DashboardPage() {
                       {w.count} miss{w.count !== 1 ? "es" : ""} · needs rebuild
                     </div>
                   </div>
+                  <Chip tone="warn">{w.count}</Chip>
                 </div>
               ))
             ) : (
@@ -267,81 +330,7 @@ export default function DashboardPage() {
               </div>
             )}
           </section>
-
-          <section className="panel" style={{ padding: "1.5rem" }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: 16,
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Icon.users size={14} color="var(--text-dim)" />
-                <span className="eyebrow">Cohort · this week</span>
-              </div>
-              <button
-                onClick={() => router.push("/cohort")}
-                style={{
-                  fontSize: 11,
-                  color: "var(--accent)",
-                  fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                All →
-              </button>
-            </div>
-            {ranked.slice(0, 5).map((p) => (
-              <div
-                key={p.rank}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  padding: "0.4rem 0",
-                  color: p.isUser ? "var(--text)" : "var(--text-dim)",
-                }}
-              >
-                <span
-                  className="font-mono"
-                  style={{
-                    fontSize: 10,
-                    width: 18,
-                    color: p.rank <= 3 ? "var(--accent)" : "var(--text-fade)",
-                  }}
-                >
-                  #{p.rank}
-                </span>
-                <div
-                  style={{
-                    flex: 1,
-                    fontSize: 12,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                  }}
-                >
-                  {p.crown && <Icon.crown size={10} color="var(--warn)" />}
-                  <span
-                    style={{
-                      fontWeight: p.isUser ? 500 : 400,
-                      color: p.isUser ? "var(--accent)" : undefined,
-                    }}
-                  >
-                    {p.name}
-                  </span>
-                </div>
-                <span className="font-mono" style={{ fontSize: 11 }}>
-                  {p.xp.toLocaleString()}
-                </span>
-              </div>
-            ))}
-          </section>
-        </div>
+        </aside>
       </div>
 
       {showPasteModal && (

@@ -12,14 +12,16 @@ type Update = (patch: Partial<AppState> | ((s: AppState) => AppState)) => void;
 
 type NavItem = { href: string; label: string; icon: IconComponent };
 
+// Student nav. Cohort is off until we have real comparison data (stub
+// leaderboard hides behind the /cohort URL for now); Roadmap lives at /roadmap
+// for marketing links but it's product-marketing content, not study workflow.
+// Both routes still resolve if someone pastes the URL.
 const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Today", icon: Icon.bolt },
   { href: "/study", label: "Daily Study", icon: Icon.brain },
   { href: "/coach", label: "Live Work", icon: Icon.target },
   { href: "/tutor", label: "Tutor Chat", icon: Icon.msg },
-  { href: "/library", label: "Deck", icon: Icon.book },
-  { href: "/cohort", label: "Cohort", icon: Icon.users },
-  { href: "/roadmap", label: "Roadmap", icon: Icon.map },
+  { href: "/library", label: "Decks", icon: Icon.book },
 ];
 
 export function Sidebar({

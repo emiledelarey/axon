@@ -20,13 +20,25 @@ type SessionStats = {
   xpEarned: number;
 };
 
+// Renamed per Perplexity brief. Internal keys stay "again/hard/good/easy" so
+// the XP + scheduling logic doesn't need to change.
+const RATINGS = [
+  { key: "again", label: "Missed it", sub: "+2 XP · rebuild", color: "var(--danger)" },
+  { key: "hard", label: "Shaky", sub: "+8 XP · 2 days", color: "var(--warn)" },
+  { key: "good", label: "Got it", sub: "+15 XP · 5 days", color: "var(--info)" },
+  { key: "easy", label: "Easy", sub: "+25 XP · 12 days", color: "var(--accent)" },
+] as const;
+
 export default function StudyPage() {
   const router = useRouter();
   const { state, update } = useAppState();
   const exit = () => router.push("/dashboard");
 
+  const typedMode = state.typedRecallMode;
+
   const [cardIdx, setCardIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
+  const [typedAnswer, setTypedAnswer] = useState("");
   const [microLesson, setMicroLesson] = useState<ClassifyErrorResponse | null>(null);
   const [microLessonLoading, setMicroLessonLoading] = useState(false);
   const [microLessonError, setMicroLessonError] = useState<string | null>(null);
@@ -40,6 +52,7 @@ export default function StudyPage() {
 
   const cards = state.deck || [];
   const card = cards[cardIdx];
+  const errorCount = card ? (state.errorsByCard?.[card.id] ?? 0) : 0;
 
   const runClassifier = async (c: Card) => {
     setMicroLessonLoading(true);
@@ -110,6 +123,7 @@ export default function StudyPage() {
     }
     setCardIdx(cardIdx + 1);
     setFlipped(false);
+    setTypedAnswer("");
     setMicroLesson(null);
     setMicroLessonError(null);
   };
@@ -139,6 +153,19 @@ export default function StudyPage() {
       />
     );
   }
+
+  // "Why this card" chip — explains why the student is seeing this card right now.
+  const whyChip =
+    errorCount > 0 ? (
+      <Chip tone="warn">
+        <Icon.alert size={10} /> Weak spot · {errorCount} miss
+        {errorCount !== 1 ? "es" : ""}
+      </Chip>
+    ) : cardIdx === 0 ? (
+      <Chip tone="info">First card</Chip>
+    ) : (
+      <Chip>In rotation</Chip>
+    );
 
   return (
     <div
@@ -176,6 +203,27 @@ export default function StudyPage() {
           <Icon.arrowLeft size={14} /> Back to today
         </button>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: 11,
+              color: typedMode ? "var(--accent)" : "var(--text-fade)",
+              fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+              cursor: "pointer",
+              letterSpacing: "0.05em",
+              textTransform: "uppercase",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={typedMode}
+              onChange={(e) => update({ typedRecallMode: e.target.checked })}
+              style={{ accentColor: "var(--accent)", width: 12, height: 12 }}
+            />
+            Type first
+          </label>
           <Chip>
             Card {cardIdx + 1} of {cards.length}
           </Chip>
@@ -183,7 +231,7 @@ export default function StudyPage() {
         </div>
       </div>
 
-      <div className="signal-bar" style={{ marginBottom: 36 }}>
+      <div className="signal-bar" style={{ marginBottom: 28 }}>
         <div
           className="signal-fill"
           style={{
@@ -191,6 +239,18 @@ export default function StudyPage() {
             background: "var(--accent)",
           }}
         />
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 10,
+          marginBottom: 14,
+        }}
+      >
+        {whyChip}
       </div>
 
       <div style={{ textAlign: "center", marginBottom: 16 }}>
@@ -226,7 +286,7 @@ export default function StudyPage() {
                 fontSize: 30,
                 lineHeight: 1.3,
                 color: "var(--text)",
-                marginBottom: 24,
+                marginBottom: 18,
                 fontWeight: 400,
                 maxWidth: 680,
               }}
@@ -239,15 +299,32 @@ export default function StudyPage() {
                 fontSize: 16,
                 maxWidth: 640,
                 lineHeight: 1.55,
+                marginBottom: typedMode ? 20 : 32,
               }}
             >
               {card!.question}
             </div>
-            <div style={{ marginTop: 32 }}>
-              <Btn variant="primary" size="lg" onClick={() => setFlipped(true)} icon={Icon.rotate}>
-                Show answer
-              </Btn>
-            </div>
+            {typedMode && (
+              <textarea
+                value={typedAnswer}
+                onChange={(e) => setTypedAnswer(e.target.value)}
+                placeholder="Type your answer first — then reveal to compare."
+                rows={3}
+                style={{
+                  width: "100%",
+                  maxWidth: 560,
+                  marginBottom: 20,
+                  fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+                  fontSize: 13,
+                  lineHeight: 1.6,
+                  resize: "vertical",
+                  textAlign: "left",
+                }}
+              />
+            )}
+            <Btn variant="primary" size="lg" onClick={() => setFlipped(true)} icon={Icon.rotate}>
+              {typedMode ? "Reveal & compare" : "Show answer"}
+            </Btn>
           </div>
           <div
             className="card-face panel"
@@ -262,6 +339,31 @@ export default function StudyPage() {
               overflowY: "auto",
             }}
           >
+            {typedMode && typedAnswer.trim() && (
+              <>
+                <div style={{ marginBottom: 6 }}>
+                  <span className="eyebrow" style={{ color: "var(--text-fade)" }}>
+                    Your answer
+                  </span>
+                </div>
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+                    background: "var(--bg)",
+                    border: "1px solid var(--border)",
+                    padding: "0.75rem 1rem",
+                    borderRadius: 6,
+                    color: "var(--text-dim)",
+                    marginBottom: 18,
+                    whiteSpace: "pre-wrap",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {typedAnswer.trim()}
+                </div>
+              </>
+            )}
             <div style={{ marginBottom: 14 }}>
               <span className="eyebrow">Answer</span>
             </div>
@@ -308,14 +410,7 @@ export default function StudyPage() {
             gap: 10,
           }}
         >
-          {(
-            [
-              { key: "again", label: "Again", sub: "+2 XP · see it next", color: "var(--danger)" },
-              { key: "hard", label: "Hard", sub: "+8 XP · 2 days", color: "var(--warn)" },
-              { key: "good", label: "Good", sub: "+15 XP · 5 days", color: "var(--info)" },
-              { key: "easy", label: "Easy", sub: "+25 XP · 12 days", color: "var(--accent)" },
-            ] as const
-          ).map((r) => (
+          {RATINGS.map((r) => (
             <button
               key={r.key}
               onClick={() => handleRating(r.key)}
@@ -358,7 +453,7 @@ export default function StudyPage() {
             fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
           }}
         >
-          Think first. Then flip.
+          {typedMode ? "Commit an answer. Then reveal." : "Think first. Then flip."}
         </div>
       )}
     </div>

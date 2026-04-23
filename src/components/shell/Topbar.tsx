@@ -1,15 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
-import { computeCohort } from "@/lib/cohort";
 import type { AppState } from "@/lib/state";
 import { Icon } from "../ui/Icon";
 import { Hairline } from "../ui/Hairline";
 
 export function Topbar({ state }: { state: AppState }) {
-  const ranked = useMemo(() => computeCohort(state.xp, state.streak), [state.xp, state.streak]);
-  const userRank = ranked.find((p) => p.isUser)?.rank ?? 0;
-
   return (
     <header
       style={{
@@ -43,11 +38,11 @@ export function Topbar({ state }: { state: AppState }) {
           <span className="eyebrow">XP</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <Icon.trophy size={14} color="var(--info)" />
+          <Icon.layers size={14} color="var(--info)" />
           <span className="italic-serif" style={{ fontSize: 16, color: "var(--info)" }}>
-            #{userRank}
+            {state.deck.length}
           </span>
-          <span className="eyebrow">cohort</span>
+          <span className="eyebrow">cards</span>
         </div>
       </div>
       <div style={{ flex: 1 }} />

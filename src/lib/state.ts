@@ -42,6 +42,9 @@ export type AppState = {
   xp: number;
   lastStudyDate: string | null;
   sessionsCompleted: number;
+
+  // Preferences
+  typedRecallMode: boolean;
 };
 
 export const DEFAULT_STATE: AppState = {
@@ -62,6 +65,7 @@ export const DEFAULT_STATE: AppState = {
   referrer: null,
   createdAt: null,
   onboardingComplete: false,
+  typedRecallMode: false,
 };
 
 /**
