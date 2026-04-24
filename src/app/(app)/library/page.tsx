@@ -7,6 +7,40 @@ import { Chip } from "@/components/ui/Chip";
 import { Icon } from "@/components/ui/Icon";
 import { PasteMaterialModal } from "@/components/modals/PasteMaterialModal";
 import { removeDeck, switchToDeck } from "@/lib/state";
+import type { Card } from "@/lib/api-types";
+
+/**
+ * Parses the timestamp Axon embeds in every deck id (`deck_${Date.now()}`) and
+ * returns a short human-readable date. Falls back to "—" if the id doesn't
+ * follow that format (demo decks, legacy state).
+ */
+function deckCreatedLabel(id: string | null): string {
+  if (!id) return "—";
+  const match = id.match(/^deck_(\d+)$/);
+  if (!match) return "—";
+  const ts = Number(match[1]);
+  if (!Number.isFinite(ts)) return "—";
+  return new Date(ts).toLocaleDateString("en-AU", {
+    day: "numeric",
+    month: "short",
+  });
+}
+
+/** Top-N weak concepts for a deck, sorted by miss count. */
+function topWeakConcepts(
+  cards: Card[],
+  errorsByCard: Record<string, number>,
+  limit = 2,
+): Array<{ concept: string; count: number }> {
+  return Object.entries(errorsByCard || {})
+    .map(([id, count]) => {
+      const card = cards.find((c) => c.id === id);
+      return card && count > 0 ? { concept: card.concept, count } : null;
+    })
+    .filter((x): x is { concept: string; count: number } => x !== null)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit);
+}
 
 export default function LibraryPage() {
   const { state, update } = useAppState();
@@ -67,33 +101,6 @@ export default function LibraryPage() {
     update((s) => removeDeck(s, s.activeDeckId!));
   };
 
-  type GroupedEntry = {
-    id: string | null;
-    materialLabel: string;
-    cards: { length: number };
-    isActive: boolean;
-  };
-  const grouped: Record<string, GroupedEntry[]> = {};
-  if (deck.length > 0) {
-    const sub = state.subject || "General";
-    (grouped[sub] = grouped[sub] || []).push({
-      id: state.activeDeckId,
-      materialLabel: state.materialLabel,
-      cards: deck,
-      isActive: true,
-    });
-  }
-  state.decks.forEach((d) => {
-    const sub = d.subject || "General";
-    (grouped[sub] = grouped[sub] || []).push({
-      id: d.id,
-      materialLabel: d.materialLabel,
-      cards: d.cards,
-      isActive: false,
-    });
-  });
-  const subjects = Object.keys(grouped).sort();
-
   return (
     <div
       className="fade-in"
@@ -142,85 +149,146 @@ export default function LibraryPage() {
       {totalDecks > 1 && (
         <div
           style={{
-            marginBottom: 24,
+            marginBottom: 20,
             display: "flex",
             flexDirection: "column",
             gap: 14,
           }}
         >
-          {subjects.map((sub) => (
-            <div key={sub}>
-              <div className="eyebrow" style={{ marginBottom: 8 }}>
-                {sub}
-              </div>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {grouped[sub].map((d) => {
-                  if (d.isActive) {
-                    return (
+          {(() => {
+            type Entry = {
+              id: string | null;
+              subject: string;
+              materialLabel: string;
+              cards: Card[];
+              errorsByCard: Record<string, number>;
+              isActive: boolean;
+            };
+            const entries: Entry[] = [];
+            if (deck.length > 0) {
+              entries.push({
+                id: state.activeDeckId,
+                subject: state.subject || "General",
+                materialLabel: state.materialLabel,
+                cards: deck,
+                errorsByCard: state.errorsByCard || {},
+                isActive: true,
+              });
+            }
+            state.decks.forEach((d) =>
+              entries.push({
+                id: d.id,
+                subject: d.subject || "General",
+                materialLabel: d.materialLabel,
+                cards: d.cards,
+                errorsByCard: d.errorsByCard || {},
+                isActive: false,
+              }),
+            );
+            const grouped = entries.reduce<Record<string, Entry[]>>((acc, e) => {
+              (acc[e.subject] ||= []).push(e);
+              return acc;
+            }, {});
+            const subjects = Object.keys(grouped).sort();
+
+            return subjects.map((sub) => (
+              <div key={sub}>
+                <div className="eyebrow" style={{ marginBottom: 8 }}>
+                  {sub}
+                </div>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+                    gap: 10,
+                  }}
+                >
+                  {grouped[sub].map((d) => {
+                    const weak = topWeakConcepts(d.cards, d.errorsByCard);
+                    const card = (
                       <div
-                        key={d.id ?? "active"}
+                        key={d.id ?? `entry-${sub}-${d.isActive}`}
+                        onClick={() => {
+                          if (!d.isActive && d.id) update((s) => switchToDeck(s, d.id!));
+                        }}
                         style={{
-                          padding: "0.45rem 0.9rem",
-                          borderRadius: 20,
-                          background: "rgba(0,230,168,0.1)",
-                          border: "1px solid var(--accent)",
-                          color: "var(--accent)",
-                          fontSize: 12,
+                          padding: "0.75rem 0.9rem",
+                          borderRadius: 8,
+                          background: d.isActive ? "rgba(0,230,168,0.06)" : "var(--surface)",
+                          border: `1px solid ${d.isActive ? "var(--accent)" : "var(--border)"}`,
+                          cursor: d.isActive ? "default" : "pointer",
+                          transition: "all 0.15s",
                           display: "flex",
-                          alignItems: "center",
-                          gap: 8,
+                          flexDirection: "column",
+                          gap: 6,
+                          minWidth: 0,
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!d.isActive) e.currentTarget.style.borderColor = "var(--accent-dim)";
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!d.isActive) e.currentTarget.style.borderColor = "var(--border)";
                         }}
                       >
-                        <Icon.check size={11} />
-                        {d.materialLabel}
-                        <span
-                          className="font-mono"
-                          style={{ fontSize: 10, color: "var(--text-dim)" }}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: 8,
+                          }}
                         >
-                          {d.cards.length}
-                        </span>
+                          <div
+                            style={{
+                              fontSize: 13,
+                              fontWeight: 500,
+                              color: d.isActive ? "var(--accent)" : "var(--text)",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {d.materialLabel || "Unnamed"}
+                          </div>
+                          {d.isActive && <Chip tone="accent">Active</Chip>}
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: 10,
+                            fontSize: 10,
+                            color: "var(--text-fade)",
+                            fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+                            letterSpacing: "0.05em",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          <span>{d.cards.length} cards</span>
+                          <span>·</span>
+                          <span>{deckCreatedLabel(d.id)}</span>
+                        </div>
+                        {weak.length > 0 && (
+                          <div
+                            style={{
+                              fontSize: 11,
+                              color: "var(--warn)",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 6,
+                            }}
+                          >
+                            <Icon.alert size={10} />
+                            <span>Weak: {weak.map((w) => w.concept).join(", ")}</span>
+                          </div>
+                        )}
                       </div>
                     );
-                  }
-                  return (
-                    <button
-                      key={d.id ?? `inactive-${sub}`}
-                      onClick={() => d.id && update((s) => switchToDeck(s, d.id!))}
-                      style={{
-                        padding: "0.45rem 0.9rem",
-                        borderRadius: 20,
-                        background: "var(--surface)",
-                        border: "1px solid var(--border)",
-                        color: "var(--text-dim)",
-                        fontSize: 12,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        transition: "all 0.15s",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = "var(--accent-dim)";
-                        e.currentTarget.style.color = "var(--text)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = "var(--border)";
-                        e.currentTarget.style.color = "var(--text-dim)";
-                      }}
-                    >
-                      {d.materialLabel}
-                      <span
-                        className="font-mono"
-                        style={{ fontSize: 10, color: "var(--text-fade)" }}
-                      >
-                        {d.cards.length}
-                      </span>
-                    </button>
-                  );
-                })}
+                    return card;
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            ));
+          })()}
         </div>
       )}
 

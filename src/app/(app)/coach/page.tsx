@@ -2,11 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useAppState } from "@/components/providers/AppStateProvider";
-import { Btn } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { Spinner } from "@/components/ui/Spinner";
 import { AxonMark } from "@/components/ui/AxonMark";
-import { Icon } from "@/components/ui/Icon";
 import { API_AVAILABLE, apiChatStream, fallbackChatResponse } from "@/lib/api";
 
 type Hint = {
@@ -16,10 +14,47 @@ type Hint = {
   text: string;
 };
 
+type CoachAction = {
+  key: string;
+  label: string;
+  prompt: (ctx: { problem: string; working: string; stuck: string }) => string;
+};
+
+// The structured actions per Perplexity brief. Each one sends a targeted
+// prompt rather than a raw "check my working" blob, so the coach's reply
+// stays focused on exactly the axis the student asked about.
+const ACTIONS: CoachAction[] = [
+  {
+    key: "logic",
+    label: "Check logic",
+    prompt: ({ problem, working, stuck }) =>
+      `Focus: is my reasoning pointed the right way? Ignore arithmetic for now.\n\nProblem: ${problem || "(not given)"}\nMy working: ${working || "(not given)"}${stuck ? `\nWhere I'm stuck: ${stuck}` : ""}`,
+  },
+  {
+    key: "formula",
+    label: "Check formula choice",
+    prompt: ({ problem, working, stuck }) =>
+      `Focus: am I using the right formula / model for this situation? If not, name the right one but don't plug numbers.\n\nProblem: ${problem || "(not given)"}\nMy working: ${working || "(not given)"}${stuck ? `\nWhere I'm stuck: ${stuck}` : ""}`,
+  },
+  {
+    key: "arithmetic",
+    label: "Check arithmetic",
+    prompt: ({ problem, working, stuck }) =>
+      `Focus: arithmetic only. Point to the specific line with a calculation slip, don't solve it for me.\n\nProblem: ${problem || "(not given)"}\nMy working: ${working || "(not given)"}${stuck ? `\nWhere I'm stuck: ${stuck}` : ""}`,
+  },
+  {
+    key: "hint",
+    label: "Give next hint",
+    prompt: ({ problem, working, stuck }) =>
+      `I'm stuck. One targeted hint — don't give me the answer.\n\nProblem: ${problem || "(not given)"}\nMy working: ${working || "(not given)"}${stuck ? `\nWhere I'm stuck: ${stuck}` : ""}`,
+  },
+];
+
 export default function CoachPage() {
   const { state } = useAppState();
   const [problem, setProblem] = useState("");
   const [working, setWorking] = useState("");
+  const [stuck, setStuck] = useState("");
   const [hints, setHints] = useState<Hint[]>([]);
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,14 +64,16 @@ export default function CoachPage() {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [hints]);
 
-  const ask = async (userMessage: string) => {
+  const hasContext = problem.trim() || working.trim() || stuck.trim();
+
+  const ask = async (userMessage: string, displayLabel: string) => {
     setError(null);
     setStreaming(true);
     const now = new Date().toLocaleTimeString("en-AU", {
       hour: "2-digit",
       minute: "2-digit",
     });
-    const userHint: Hint = { id: Date.now(), t: now, role: "user", text: userMessage };
+    const userHint: Hint = { id: Date.now(), t: now, role: "user", text: displayLabel };
     const aiHint: Hint = { id: Date.now() + 1, t: now, role: "assistant", text: "" };
     setHints((h) => [...h, userHint, aiHint]);
 
@@ -73,23 +110,12 @@ export default function CoachPage() {
     }
   };
 
-  const checkWork = () => {
-    if (!problem.trim() && !working.trim()) {
-      setError("Paste a problem or some working first.");
+  const runAction = (action: CoachAction) => {
+    if (!hasContext) {
+      setError("Paste a problem, your working, or where you're stuck before asking.");
       return;
     }
-    const prompt = problem.trim()
-      ? `Here's the problem: ${problem}\n\nCheck my working and point me to the next step.`
-      : "Check my working and point me to the next step.";
-    ask(prompt);
-  };
-
-  const askForHint = () => {
-    if (!problem.trim() && !working.trim()) {
-      setError("Paste a problem or some working first.");
-      return;
-    }
-    ask("I'm stuck. Give me a hint — don't tell me the answer.");
+    ask(action.prompt({ problem, working, stuck }), action.label);
   };
 
   return (
@@ -111,12 +137,12 @@ export default function CoachPage() {
         }}
       >
         <div>
-          <span className="eyebrow">Live Work · Socratic coach</span>
+          <span className="eyebrow">Problem Coach · Socratic</span>
           <h1
             className="italic-serif"
             style={{ fontSize: 22, margin: "0.2rem 0 0", fontWeight: 400 }}
           >
-            Paste your working. Axon watches and coaches.
+            Show your working. Axon points at the next step.
           </h1>
         </div>
         <Chip tone="accent">
@@ -130,22 +156,23 @@ export default function CoachPage() {
           flex: 1,
           display: "grid",
           gridTemplateColumns: "1.3fr 1fr",
-          gap: 16,
+          gap: 14,
           minHeight: 0,
         }}
       >
         <div
           className="panel"
           style={{
-            padding: "1.5rem",
+            padding: "1rem",
             display: "flex",
             flexDirection: "column",
             minHeight: 0,
+            gap: 10,
           }}
         >
-          <div style={{ marginBottom: 12 }}>
-            <label className="eyebrow" style={{ display: "block", marginBottom: 6 }}>
-              Problem (optional)
+          <div>
+            <label className="eyebrow" style={{ display: "block", marginBottom: 4 }}>
+              Problem
             </label>
             <input
               value={problem}
@@ -153,62 +180,108 @@ export default function CoachPage() {
               placeholder="e.g. Compute WACC for a firm with 60% equity, 40% debt, Re=12%, Rd=6%, t=30%"
             />
           </div>
-          <label className="eyebrow" style={{ display: "block", marginBottom: 6 }}>
-            Your working
-          </label>
-          <textarea
-            value={working}
-            onChange={(e) => setWorking(e.target.value)}
-            placeholder={
-              "Type or paste your working as you go...\n\nAxon hints when you stall. It won't give you the answer."
-            }
+
+          <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+            <label className="eyebrow" style={{ display: "block", marginBottom: 4 }}>
+              My working
+            </label>
+            <textarea
+              value={working}
+              onChange={(e) => setWorking(e.target.value)}
+              placeholder={"Type or paste your working as you go..."}
+              style={{
+                flex: 1,
+                resize: "none",
+                fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+                fontSize: 13,
+                lineHeight: 1.6,
+                minHeight: 120,
+              }}
+            />
+          </div>
+
+          <div>
+            <label className="eyebrow" style={{ display: "block", marginBottom: 4 }}>
+              Where I&apos;m stuck <span style={{ color: "var(--text-fade)" }}>(optional)</span>
+            </label>
+            <textarea
+              value={stuck}
+              onChange={(e) => setStuck(e.target.value)}
+              placeholder="e.g. I'm not sure if I should use pre-tax or after-tax debt"
+              rows={2}
+              style={{ fontSize: 13, lineHeight: 1.55, resize: "none" }}
+            />
+          </div>
+
+          <div
             style={{
-              flex: 1,
-              resize: "none",
-              fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
-              fontSize: 13,
-              lineHeight: 1.7,
-              minHeight: 200,
+              display: "flex",
+              gap: 6,
+              flexWrap: "wrap",
+              borderTop: "1px solid var(--border)",
+              paddingTop: 10,
             }}
-          />
-          <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
-            <Btn
-              variant="primary"
-              size="md"
-              icon={streaming ? undefined : Icon.check}
-              onClick={checkWork}
-              disabled={streaming}
-            >
-              {streaming ? (
-                <>
-                  <Spinner size={12} /> Checking
-                </>
-              ) : (
-                "Check my working"
-              )}
-            </Btn>
-            <Btn
-              variant="secondary"
-              size="md"
-              icon={Icon.lightbulb}
-              onClick={askForHint}
-              disabled={streaming}
-            >
-              Ask for a hint
-            </Btn>
+          >
+            {ACTIONS.map((a) => (
+              <button
+                key={a.key}
+                onClick={() => runAction(a)}
+                disabled={streaming}
+                style={{
+                  padding: "0.4rem 0.75rem",
+                  borderRadius: 16,
+                  border: "1px solid var(--border-bright)",
+                  background: "transparent",
+                  color: "var(--text)",
+                  fontSize: 12,
+                  fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+                  cursor: streaming ? "not-allowed" : "pointer",
+                  opacity: streaming ? 0.5 : 1,
+                  transition: "all 0.15s",
+                }}
+                onMouseEnter={(e) => {
+                  if (!streaming) {
+                    e.currentTarget.style.borderColor = "var(--accent)";
+                    e.currentTarget.style.color = "var(--accent)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "var(--border-bright)";
+                  e.currentTarget.style.color = "var(--text)";
+                }}
+              >
+                {a.key === "hint" ? "💡 " : ""}
+                {a.label}
+              </button>
+            ))}
+            {streaming && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  marginLeft: "auto",
+                  fontSize: 11,
+                  color: "var(--text-dim)",
+                  fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+                }}
+              >
+                <Spinner size={12} /> Coach thinking…
+              </div>
+            )}
           </div>
         </div>
 
         <div
           className="panel"
           style={{
-            padding: "1.25rem",
+            padding: "1rem",
             display: "flex",
             flexDirection: "column",
             minHeight: 0,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
             <AxonMark size={14} animated />
             <span className="eyebrow" style={{ color: "var(--accent)" }}>
               Coaching feed
@@ -230,15 +303,14 @@ export default function CoachPage() {
                 style={{
                   fontSize: 12,
                   color: "var(--text-dim)",
-                  padding: "2rem 0",
+                  padding: "1.5rem 0",
                   textAlign: "center",
                   lineHeight: 1.6,
                 }}
               >
-                Paste your working, then hit &quot;Check my working&quot; or &quot;Ask for a
-                hint.&quot;
+                Fill in at least one field on the left, then tap an action.
                 <br />
-                Axon won&apos;t give you the answer — it&apos;ll help you see the next step.
+                Axon won&apos;t give you the answer — it&apos;ll point at the next step.
               </div>
             )}
             {hints.map((h) => (
@@ -246,7 +318,7 @@ export default function CoachPage() {
                 key={h.id}
                 className="slide-right"
                 style={{
-                  padding: "0.75rem 0.9rem",
+                  padding: "0.65rem 0.8rem",
                   borderRadius: 6,
                   background: h.role === "user" ? "var(--surface-2)" : "var(--bg)",
                   borderLeft: `2px solid ${h.role === "user" ? "var(--info)" : "var(--accent)"}`,
@@ -281,7 +353,7 @@ export default function CoachPage() {
                 <div style={{ color: "var(--text)" }}>
                   {h.text ||
                     (h.role === "assistant" && streaming ? (
-                      <span style={{ opacity: 0.6 }}>...</span>
+                      <span style={{ opacity: 0.6 }}>…</span>
                     ) : (
                       ""
                     ))}
@@ -291,7 +363,7 @@ export default function CoachPage() {
             {error && (
               <div
                 style={{
-                  padding: "0.75rem",
+                  padding: "0.65rem 0.8rem",
                   background: "rgba(229,111,76,0.08)",
                   border: "1px solid var(--danger)",
                   borderRadius: 6,

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAppState } from "@/components/providers/AppStateProvider";
 import { Btn } from "@/components/ui/Button";
+import { Chip } from "@/components/ui/Chip";
 import { Spinner } from "@/components/ui/Spinner";
 import { AxonMark } from "@/components/ui/AxonMark";
 import { Icon } from "@/components/ui/Icon";
@@ -10,12 +11,35 @@ import { API_AVAILABLE, apiChatStream, fallbackChatResponse } from "@/lib/api";
 
 type Msg = { role: "user" | "assistant"; content: string; t: string };
 
+// Per Perplexity brief: one-tap actions that prefill the composer so the
+// student can edit before sending. Keeps the dialogue feeling Socratic —
+// these are prompts *to* the tutor, not buttons that auto-post.
+const QUICK_ACTIONS = [
+  {
+    label: "Explain simply",
+    prompt: "Explain the key idea of our material as if I'm seeing it for the first time.",
+  },
+  {
+    label: "Quiz me",
+    prompt: "Quiz me on the material. One question at a time, start with the foundational concept.",
+  },
+  {
+    label: "Give example",
+    prompt: "Give me a concrete worked example using numbers from the material.",
+  },
+  {
+    label: "Compare concepts",
+    prompt:
+      "Compare the two concepts I'm most likely confusing in this material. What's the specific difference?",
+  },
+] as const;
+
 export default function TutorPage() {
   const { state } = useAppState();
 
   const openingLine = useMemo(() => {
     if (state.materialLabel) {
-      return `Hi${state.name ? ` ${state.name}` : ""}. I've read your material (${state.materialLabel}). What are you working on?`;
+      return `Hi${state.name ? ` ${state.name}` : ""}. I've read your material (${state.materialLabel}). Ask anything — I'll diagnose first, then teach.`;
     }
     return `Hi${state.name ? ` ${state.name}` : ""}. Paste some material first if you want me to be deck-aware. Otherwise, ask anything — I'll help you reason through it.`;
   }, [state.materialLabel, state.name]);
@@ -103,6 +127,23 @@ export default function TutorPage() {
         >
           Socratic. Knows your material. Never writes your assignment.
         </h1>
+        <div
+          style={{
+            display: "flex",
+            gap: 6,
+            marginTop: 8,
+            flexWrap: "wrap",
+          }}
+        >
+          {state.materialLabel ? (
+            <Chip tone="accent">
+              <Icon.book size={10} /> Using: {state.materialLabel}
+            </Chip>
+          ) : (
+            <Chip>No material loaded — general tutor</Chip>
+          )}
+          <Chip>Concepts dialogue · use Problem Coach for working</Chip>
+        </div>
       </div>
 
       <div
@@ -112,9 +153,9 @@ export default function TutorPage() {
           overflowY: "auto",
           display: "flex",
           flexDirection: "column",
-          gap: 16,
+          gap: 14,
           paddingRight: 8,
-          marginBottom: 20,
+          marginBottom: 14,
         }}
       >
         {messages.map((m, i) => (
@@ -153,19 +194,19 @@ export default function TutorPage() {
             </div>
             <div
               style={{
-                padding: "0.9rem 1.1rem",
+                padding: "0.75rem 1rem",
                 borderRadius: 10,
                 background: m.role === "user" ? "var(--surface-2)" : "var(--surface)",
                 border:
                   m.role === "user" ? "1px solid var(--border-bright)" : "1px solid var(--border)",
                 fontSize: 14,
-                lineHeight: 1.65,
+                lineHeight: 1.6,
                 whiteSpace: "pre-wrap",
               }}
             >
               {m.content ||
                 (streaming && i === messages.length - 1 ? (
-                  <span style={{ opacity: 0.5 }}>...</span>
+                  <span style={{ opacity: 0.5 }}>…</span>
                 ) : (
                   ""
                 ))}
@@ -175,7 +216,7 @@ export default function TutorPage() {
         {error && (
           <div
             style={{
-              padding: "0.75rem",
+              padding: "0.65rem 0.8rem",
               background: "rgba(229,111,76,0.08)",
               border: "1px solid var(--danger)",
               borderRadius: 6,
@@ -186,6 +227,48 @@ export default function TutorPage() {
             {error}
           </div>
         )}
+      </div>
+
+      {/* Quick actions — prefill the composer so the student can tweak before sending */}
+      <div
+        style={{
+          display: "flex",
+          gap: 6,
+          flexWrap: "wrap",
+          marginBottom: 8,
+        }}
+      >
+        {QUICK_ACTIONS.map((a) => (
+          <button
+            key={a.label}
+            onClick={() => setInput(a.prompt)}
+            disabled={streaming}
+            style={{
+              padding: "0.35rem 0.75rem",
+              borderRadius: 16,
+              border: "1px solid var(--border-bright)",
+              background: "transparent",
+              color: "var(--text-dim)",
+              fontSize: 11,
+              fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+              cursor: streaming ? "not-allowed" : "pointer",
+              opacity: streaming ? 0.5 : 1,
+              transition: "all 0.15s",
+            }}
+            onMouseEnter={(e) => {
+              if (!streaming) {
+                e.currentTarget.style.borderColor = "var(--accent)";
+                e.currentTarget.style.color = "var(--accent)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "var(--border-bright)";
+              e.currentTarget.style.color = "var(--text-dim)";
+            }}
+          >
+            {a.label}
+          </button>
+        ))}
       </div>
 
       <div style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>

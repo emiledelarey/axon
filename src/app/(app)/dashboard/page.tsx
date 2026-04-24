@@ -248,14 +248,14 @@ export default function DashboardPage() {
             {(
               [
                 {
-                  title: "Live Work",
-                  sub: "Paste a problem. Get Socratic hints.",
+                  title: "Problem Coach",
+                  sub: "Paste a problem. Get Socratic hints, never the answer.",
                   icon: Icon.target,
                   href: "/coach",
                 },
                 {
                   title: "Tutor Chat",
-                  sub: "Ask anything. Material-aware.",
+                  sub: "Ask concepts. Material-aware. Never writes for you.",
                   icon: Icon.msg,
                   href: "/tutor",
                 },
