@@ -140,20 +140,16 @@ function Hero() {
         </div>
 
         <h1
-          className="italic-serif"
+          className="display-serif"
           style={{
             fontSize: "clamp(2.4rem, 6vw, 4.5rem)",
             lineHeight: 1.05,
             margin: 0,
             fontWeight: 400,
-            letterSpacing: "-0.01em",
           }}
         >
           The AI study tool that{" "}
-          <span className="grad-accent" style={{ fontStyle: "italic" }}>
-            refuses to write your essay
-          </span>{" "}
-          for you.
+          <span className="italic-serif grad-accent">refuses to write your essay</span> for you.
         </h1>
 
         <p
@@ -277,14 +273,15 @@ function FeatureSections() {
       >
         <span className="eyebrow">Six tools · one study loop</span>
         <h2
-          className="italic-serif"
+          className="display-serif"
           style={{
             fontSize: "clamp(1.8rem, 3.6vw, 2.6rem)",
             margin: "0.5rem 0 0",
             fontWeight: 400,
           }}
         >
-          Every surface is built to coach, not to answer.
+          Every surface is built to <span className="italic-serif grad-accent">coach</span>, not to
+          answer.
         </h2>
       </div>
 
@@ -320,7 +317,7 @@ function FeatureRow({ feature, reverse }: { feature: Feature; reverse: boolean }
             </span>
           </div>
           <h3
-            className="italic-serif"
+            className="display-serif"
             style={{
               fontSize: "clamp(1.5rem, 3vw, 2.2rem)",
               margin: 0,
@@ -332,7 +329,7 @@ function FeatureRow({ feature, reverse }: { feature: Feature; reverse: boolean }
               idx < arr.length - 1 ? (
                 <span key={idx}>
                   {chunk}
-                  <span className="grad-accent">{feature.spineSpan}</span>
+                  <span className="italic-serif grad-accent">{feature.spineSpan}</span>
                 </span>
               ) : (
                 <span key={idx}>{chunk}</span>
@@ -730,14 +727,14 @@ function PricingSlice() {
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <span className="eyebrow">Pricing · one tier, one price</span>
           <h2
-            className="italic-serif"
+            className="display-serif"
             style={{
               fontSize: "clamp(1.8rem, 3.6vw, 2.6rem)",
               margin: "0.5rem 0 0",
               fontWeight: 400,
             }}
           >
-            Free to start. A$20 to go serious.
+            Free to start. <span className="italic-serif grad-accent">A$20</span> to go serious.
           </h2>
         </div>
 
@@ -813,8 +810,8 @@ function PriceCard({
         </span>
       </div>
       <div
-        className={highlight ? "italic-serif grad-accent" : "italic-serif"}
-        style={{ fontSize: 38, lineHeight: 1, marginBottom: 16, fontWeight: 500 }}
+        className={highlight ? "display-serif grad-accent" : "display-serif"}
+        style={{ fontSize: 38, lineHeight: 1, marginBottom: 16, fontWeight: 400 }}
       >
         {price}
         <span

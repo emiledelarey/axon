@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
-import { Fraunces, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
+import { Instrument_Serif, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { Providers } from "@/components/providers/Providers";
 import "./globals.css";
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+// Instrument Serif is our display face — upright reads "we stand for something"
+// for headlines; italic only comes in as a highlight (see .italic-serif).
+// 400 weight only, which is fine because hierarchy is driven by size, not weight.
+const serif = Instrument_Serif({
+  variable: "--font-serif",
   subsets: ["latin"],
+  weight: "400",
   style: ["normal", "italic"],
-  axes: ["opsz"],
 });
 
 const plex = IBM_Plex_Sans({
@@ -46,11 +49,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         },
         elements: {
           card: { background: "#11172a", border: "1px solid #1f2847" },
-          headerTitle: { fontFamily: "var(--font-fraunces), Georgia, serif", fontStyle: "italic" },
+          headerTitle: { fontFamily: "var(--font-serif), Georgia, serif", fontStyle: "italic" },
         },
       }}
     >
-      <html lang="en" className={`${fraunces.variable} ${plex.variable} ${jet.variable}`}>
+      <html lang="en" className={`${serif.variable} ${plex.variable} ${jet.variable}`}>
         <body>
           <Providers>{children}</Providers>
         </body>

@@ -24,7 +24,7 @@
   --color-surface: var(--surface);
   --color-accent: var(--accent);
   --color-text: var(--text);
-  --font-display: var(--font-fraunces);
+  --font-display: var(--font-serif);
   --font-sans: var(--font-plex);
   --font-mono: var(--font-jet);
 }
@@ -49,16 +49,24 @@ body {
 }
 
 .font-display {
-  font-family: var(--font-fraunces), "Fraunces", Georgia, serif;
-  font-optical-sizing: auto;
+  font-family: var(--font-serif), "Instrument Serif", Georgia, serif;
 }
 .font-mono {
   font-family: var(--font-jet), "JetBrains Mono", ui-monospace, monospace;
 }
+/* Upright Instrument Serif for primary headlines — the voice of the brand. */
+.display-serif {
+  font-family: var(--font-serif), "Instrument Serif", Georgia, serif;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+/* Italic variant kept as an *emphasis* mode, not the default headline style.
+   Use on spine spans / highlighted phrases inside a .display-serif headline. */
 .italic-serif {
-  font-family: var(--font-fraunces), "Fraunces", Georgia, serif;
+  font-family: var(--font-serif), "Instrument Serif", Georgia, serif;
   font-style: italic;
-  font-optical-sizing: auto;
+  font-weight: 400;
 }
 
 ::-webkit-scrollbar {
