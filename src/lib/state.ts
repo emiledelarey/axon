@@ -72,6 +72,7 @@ export type AppState = {
 
   // Preferences
   typedRecallMode: boolean;
+  voiceMode: boolean;
 
   // Mock Exam history — most recent first.
   examAttempts: ExamAttempt[];
@@ -103,6 +104,7 @@ export const DEFAULT_STATE: AppState = {
   createdAt: null,
   onboardingComplete: false,
   typedRecallMode: false,
+  voiceMode: false,
   examAttempts: [],
   writingPrompt: "",
   writingRubric: "",

@@ -8,6 +8,7 @@ import { AxonMark } from "@/components/ui/AxonMark";
 import { Icon } from "@/components/ui/Icon";
 import { API_AVAILABLE, apiChatStream, fallbackChatResponse } from "@/lib/api";
 import { useSpeechRecognition } from "@/lib/useSpeechRecognition";
+import { useSpeechSynthesis } from "@/lib/useSpeechSynthesis";
 
 type Hint = {
   id: number;
@@ -53,7 +54,8 @@ const ACTIONS: CoachAction[] = [
 ];
 
 export default function CoachPage() {
-  const { state } = useAppState();
+  const { state, update } = useAppState();
+  const voiceMode = state.voiceMode;
   const [problem, setProblem] = useState("");
   const [working, setWorking] = useState("");
   const [stuck, setStuck] = useState("");
@@ -77,6 +79,32 @@ export default function CoachPage() {
     else speech.start();
   };
 
+  // Voice output — read coach hints back via browser TTS.
+  const synth = useSpeechSynthesis();
+  const speakHint = (text: string) => {
+    if (synth.speaking) {
+      synth.stop();
+      return;
+    }
+    synth.speak(text);
+  };
+  const replayLast = () => {
+    const last = [...hints].reverse().find((h) => h.role === "assistant" && h.text.trim());
+    if (last) speakHint(last.text);
+  };
+
+  // Live-state badge — priority: coach speaking > processing > listening >
+  // muted (voice mode on, mic idle) > watching (text mode).
+  const badge = synth.speaking
+    ? { tone: "accent" as const, label: "Coach speaking" }
+    : streaming
+      ? { tone: "info" as const, label: "Processing" }
+      : speech.listening
+        ? { tone: "accent" as const, label: "Listening" }
+        : voiceMode
+          ? { tone: "warn" as const, label: "Muted" }
+          : { tone: "accent" as const, label: "Watching" };
+
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [hints]);
@@ -94,9 +122,15 @@ export default function CoachPage() {
     const aiHint: Hint = { id: Date.now() + 1, t: now, role: "assistant", text: "" };
     setHints((h) => [...h, userHint, aiHint]);
 
+    // Collect the full assistant reply so we can feed it to TTS after streaming
+    // — React batches state updates so reading hints right after the stream
+    // finishes doesn't necessarily have the latest text yet.
+    let fullText = "";
+
     const onChunk = (chunk: unknown) => {
       const c = chunk as { text?: string; error?: string };
       if (c.text) {
+        fullText += c.text;
         setHints((h) => h.map((x) => (x.id === aiHint.id ? { ...x, text: x.text + c.text } : x)));
       }
       if (c.error) setError(c.error);
@@ -124,6 +158,9 @@ export default function CoachPage() {
       await fallbackChatResponse(userMessage, onChunk);
     } finally {
       setStreaming(false);
+      if (voiceMode && synth.supported && fullText.trim()) {
+        synth.speak(fullText);
+      }
     }
   };
 
@@ -162,10 +199,50 @@ export default function CoachPage() {
             Show your working. Axon points at the next step.
           </h1>
         </div>
-        <Chip tone="accent">
-          <span className="status-dot live" style={{ marginRight: 4 }} />
-          Watching
-        </Chip>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {synth.supported && (
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 11,
+                color: voiceMode ? "var(--accent)" : "var(--text-fade)",
+                fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+                cursor: "pointer",
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+              }}
+              title="In voice mode the coach auto-reads each reply aloud."
+            >
+              <input
+                type="checkbox"
+                checked={voiceMode}
+                onChange={(e) => {
+                  update({ voiceMode: e.target.checked });
+                  if (!e.target.checked) synth.stop();
+                }}
+                style={{ accentColor: "var(--accent)", width: 12, height: 12 }}
+              />
+              Voice mode
+            </label>
+          )}
+          <Chip tone={badge.tone}>
+            <span
+              className={badge.label === "Muted" ? "" : "status-dot live"}
+              style={{
+                marginRight: 4,
+                background:
+                  badge.tone === "warn"
+                    ? "var(--warn)"
+                    : badge.tone === "info"
+                      ? "var(--info)"
+                      : "var(--accent)",
+              }}
+            />
+            {badge.label}
+          </Chip>
+        </div>
       </div>
 
       <div
@@ -374,11 +451,44 @@ export default function CoachPage() {
             minHeight: 0,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              marginBottom: 12,
+            }}
+          >
             <AxonMark size={14} animated />
             <span className="eyebrow" style={{ color: "var(--accent)" }}>
               Coaching feed
             </span>
+            {synth.supported && hints.some((h) => h.role === "assistant" && h.text.trim()) && (
+              <button
+                onClick={replayLast}
+                title={synth.speaking ? "Stop speech" : "Replay last coach hint"}
+                style={{
+                  marginLeft: "auto",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "0.2rem 0.55rem",
+                  borderRadius: 14,
+                  border: `1px solid ${synth.speaking ? "var(--accent)" : "var(--border-bright)"}`,
+                  background: synth.speaking ? "rgba(0,230,168,0.08)" : "transparent",
+                  color: synth.speaking ? "var(--accent)" : "var(--text-dim)",
+                  fontSize: 11,
+                  fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                  transition: "all 0.15s",
+                }}
+              >
+                <Icon.volume size={12} />
+                {synth.speaking ? "Stop" : "Replay last"}
+              </button>
+            )}
           </div>
           <div
             ref={scrollRef}
@@ -439,8 +549,33 @@ export default function CoachPage() {
                   >
                     {h.role === "user" ? "You" : "Coach"}
                   </span>
-                  <span className="font-mono" style={{ fontSize: 10, color: "var(--text-fade)" }}>
-                    {h.t}
+                  <span
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
+                    {h.role === "assistant" && synth.supported && h.text.trim() && (
+                      <button
+                        onClick={() => speakHint(h.text)}
+                        title={synth.speaking ? "Stop speech" : "Read this hint aloud"}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: 2,
+                          background: "transparent",
+                          border: "none",
+                          color: synth.speaking ? "var(--accent)" : "var(--text-fade)",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <Icon.volume size={12} />
+                      </button>
+                    )}
+                    <span className="font-mono" style={{ fontSize: 10, color: "var(--text-fade)" }}>
+                      {h.t}
+                    </span>
                   </span>
                 </div>
                 <div style={{ color: "var(--text)" }}>
