@@ -87,3 +87,17 @@ export type ChatStreamChunk =
   | { error: string };
 
 export type ApiErrorResponse = { error: string };
+
+export type WriteAction = "plan" | "thesis" | "gaps" | "rubric" | "paragraph" | "challenge";
+
+export type WriteRequest = {
+  prompt: string;
+  rubric?: string;
+  draft: string;
+  notes?: string;
+  action: WriteAction;
+};
+
+// Shares ChatStreamChunk's shape on purpose — same SSE framing, client helpers,
+// and fallbacks all work unchanged.
+export type WriteStreamChunk = ChatStreamChunk;

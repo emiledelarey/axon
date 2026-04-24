@@ -75,6 +75,13 @@ export type AppState = {
 
   // Mock Exam history — most recent first.
   examAttempts: ExamAttempt[];
+
+  // Live Write — the student's current draft + context. One session at a time;
+  // versioning is a future-session scope.
+  writingPrompt: string;
+  writingRubric: string;
+  writingDraft: string;
+  writingNotes: string;
 };
 
 export const DEFAULT_STATE: AppState = {
@@ -97,6 +104,10 @@ export const DEFAULT_STATE: AppState = {
   onboardingComplete: false,
   typedRecallMode: false,
   examAttempts: [],
+  writingPrompt: "",
+  writingRubric: "",
+  writingDraft: "",
+  writingNotes: "",
 };
 
 /**

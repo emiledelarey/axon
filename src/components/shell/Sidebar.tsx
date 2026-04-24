@@ -21,6 +21,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/study", label: "Daily Study", icon: Icon.brain },
   { href: "/exam", label: "Mock Exam", icon: Icon.trophy },
   { href: "/coach", label: "Problem Coach", icon: Icon.target },
+  { href: "/write", label: "Live Write", icon: Icon.lightbulb },
   { href: "/tutor", label: "Tutor Chat", icon: Icon.msg },
   { href: "/library", label: "Decks", icon: Icon.book },
 ];

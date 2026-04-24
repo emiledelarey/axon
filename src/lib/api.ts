@@ -6,6 +6,8 @@ import type {
   ClassifyErrorResponse,
   GenerateCardsRequest,
   GenerateCardsResponse,
+  WriteAction,
+  WriteStreamChunk,
 } from "./api-types";
 
 /**
@@ -100,6 +102,83 @@ export async function apiChatStream(
       }
     }
   }
+}
+
+export async function apiWriteStream(
+  input: {
+    prompt: string;
+    rubric?: string;
+    draft: string;
+    notes?: string;
+    action: WriteAction;
+  },
+  onChunk: (chunk: WriteStreamChunk) => void,
+): Promise<void> {
+  const res = await fetch("/api/write", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) {
+    const err = (await res.json().catch(() => ({ error: "Network error" }))) as {
+      error?: string;
+    };
+    throw new Error(err.error || `Request failed (${res.status})`);
+  }
+  if (!res.body) throw new Error("No response body");
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n\n");
+    buffer = lines.pop() || "";
+    for (const line of lines) {
+      if (!line.startsWith("data:")) continue;
+      const payload = line.slice(5).trim();
+      if (!payload) continue;
+      try {
+        onChunk(JSON.parse(payload) as WriteStreamChunk);
+      } catch {
+        /* swallow malformed SSE frames */
+      }
+    }
+  }
+}
+
+/**
+ * Fallback writing-coach response used when the backend is unreachable. Uses
+ * the same chunked-streaming signature as fallbackChatResponse so the UI
+ * doesn't need to branch.
+ */
+export function fallbackWriteResponse(
+  action: WriteAction,
+  onChunk: (chunk: WriteStreamChunk) => void,
+): Promise<void> {
+  return new Promise((resolve) => {
+    const reply =
+      action === "plan"
+        ? "Outline draft: open with your thesis, map 3 body paragraphs each to a rubric criterion, close by acknowledging the best counterargument. Don't pour the draft until each point has one piece of evidence attached."
+        : action === "thesis"
+          ? "Before I test it — what's the single-sentence thesis? If you can't say it in one line yet, the essay can't argue it. Write it, then I'll push on it."
+          : "Walk me through the argument in your own words — one sentence per paragraph. Gaps usually appear at the transitions.";
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < reply.length) {
+        onChunk({ text: reply.slice(i, i + 3) });
+        i += 3;
+      } else {
+        onChunk({
+          done: true,
+          meta: { inputTokens: 0, cacheReadInputTokens: 0, outputTokens: 0 },
+        });
+        clearInterval(interval);
+        resolve();
+      }
+    }, 28);
+  });
 }
 
 /**
