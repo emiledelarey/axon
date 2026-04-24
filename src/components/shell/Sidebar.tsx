@@ -19,6 +19,7 @@ type NavItem = { href: string; label: string; icon: IconComponent };
 const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Today", icon: Icon.bolt },
   { href: "/study", label: "Daily Study", icon: Icon.brain },
+  { href: "/exam", label: "Mock Exam", icon: Icon.trophy },
   { href: "/coach", label: "Problem Coach", icon: Icon.target },
   { href: "/tutor", label: "Tutor Chat", icon: Icon.msg },
   { href: "/library", label: "Decks", icon: Icon.book },

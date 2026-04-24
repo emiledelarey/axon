@@ -155,6 +155,12 @@ export const Icon = {
     </>,
   ),
   crown: makeIcon(<path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z" />),
+  clock: makeIcon(
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </>,
+  ),
   trash: makeIcon(
     <>
       <path d="M3 6h18" />

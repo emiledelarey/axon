@@ -16,6 +16,33 @@ export type InactiveDeck = {
   errorsByCard: Record<string, number>;
 };
 
+/**
+ * One question inside a Mock Exam attempt. `correct` is null while the student
+ * is still in the session (they haven't self-graded yet); it flips to
+ * true/false in the review phase.
+ */
+export type ExamQuestion = {
+  cardId: string;
+  studentAnswer: string;
+  correct: boolean | null;
+  timeMs: number;
+  flagged: boolean;
+};
+
+/** A single Mock Exam attempt, persisted so students can reopen past results. */
+export type ExamAttempt = {
+  id: string;
+  deckId: string | null;
+  deckLabel: string;
+  startedAt: string;
+  endedAt: string | null;
+  durationMs: number | null;
+  questionCount: number;
+  timeLimitMs: number | null;
+  questions: ExamQuestion[];
+  score: number | null;
+};
+
 /** Full persisted state. Mirrors axon-v0 DEFAULT_STATE verbatim. */
 export type AppState = {
   // User
@@ -45,6 +72,9 @@ export type AppState = {
 
   // Preferences
   typedRecallMode: boolean;
+
+  // Mock Exam history — most recent first.
+  examAttempts: ExamAttempt[];
 };
 
 export const DEFAULT_STATE: AppState = {
@@ -66,6 +96,7 @@ export const DEFAULT_STATE: AppState = {
   createdAt: null,
   onboardingComplete: false,
   typedRecallMode: false,
+  examAttempts: [],
 };
 
 /**
