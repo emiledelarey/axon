@@ -14,6 +14,8 @@ import {
   missedConcepts,
   scoreOf,
 } from "@/lib/exam";
+import { canUseMockExam } from "@/lib/entitlements";
+import { Paywall } from "@/components/billing/Paywall";
 import type { ExamAttempt } from "@/lib/state";
 import type { Card } from "@/lib/api-types";
 
@@ -29,6 +31,21 @@ export default function ExamPage() {
   const [phase, setPhase] = useState<Phase>("setup");
   const [attempt, setAttempt] = useState<ExamAttempt | null>(null);
   const [readOnlyAttempt, setReadOnlyAttempt] = useState<ExamAttempt | null>(null);
+
+  if (!canUseMockExam(state)) {
+    return (
+      <Paywall
+        feature="Mock Exam Mode"
+        blurb="Timed runs through your deck with post-exam analysis: score, weak concepts, time per question, and a direct link to rebuild in Daily Study."
+        bullets={[
+          "Timed or untimed sessions",
+          "Question navigator + flag-for-review",
+          "Self-grade with side-by-side your answer vs correct",
+          "Attempt history saved across devices",
+        ]}
+      />
+    );
+  }
 
   if (deck.length < 3) {
     return (

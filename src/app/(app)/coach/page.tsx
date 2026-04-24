@@ -9,6 +9,8 @@ import { Icon } from "@/components/ui/Icon";
 import { API_AVAILABLE, apiChatStream, fallbackChatResponse } from "@/lib/api";
 import { useSpeechRecognition } from "@/lib/useSpeechRecognition";
 import { useSpeechSynthesis } from "@/lib/useSpeechSynthesis";
+import { canUseVoiceMode } from "@/lib/entitlements";
+import Link from "next/link";
 
 type Hint = {
   id: number;
@@ -55,7 +57,8 @@ const ACTIONS: CoachAction[] = [
 
 export default function CoachPage() {
   const { state, update } = useAppState();
-  const voiceMode = state.voiceMode;
+  const canVoice = canUseVoiceMode(state);
+  const voiceMode = canVoice && state.voiceMode;
   const [problem, setProblem] = useState("");
   const [working, setWorking] = useState("");
   const [stuck, setStuck] = useState("");
@@ -200,7 +203,7 @@ export default function CoachPage() {
           </h1>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          {synth.supported && (
+          {synth.supported && canVoice && (
             <label
               style={{
                 display: "flex",
@@ -226,6 +229,28 @@ export default function CoachPage() {
               />
               Voice mode
             </label>
+          )}
+          {!canVoice && (
+            <Link
+              href="/pricing"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 11,
+                color: "var(--text-fade)",
+                fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+                border: "1px dashed var(--accent-dim)",
+                borderRadius: 14,
+                padding: "0.25rem 0.6rem",
+                textDecoration: "none",
+              }}
+              title="Voice mode (mic + TTS) is a Pro feature."
+            >
+              <Icon.sparkles size={10} color="var(--accent)" /> Voice · Pro
+            </Link>
           )}
           <Chip tone={badge.tone}>
             <span
@@ -287,7 +312,7 @@ export default function CoachPage() {
               <label className="eyebrow" style={{ display: "block" }}>
                 My working
               </label>
-              {speech.supported && (
+              {speech.supported && canVoice && (
                 <button
                   onClick={toggleMic}
                   title={
@@ -328,7 +353,7 @@ export default function CoachPage() {
               value={working}
               onChange={(e) => setWorking(e.target.value)}
               placeholder={
-                speech.supported
+                speech.supported && canVoice
                   ? "Type or speak your working. Mic captures into this box so you can edit it."
                   : "Type or paste your working as you go..."
               }
@@ -463,32 +488,34 @@ export default function CoachPage() {
             <span className="eyebrow" style={{ color: "var(--accent)" }}>
               Coaching feed
             </span>
-            {synth.supported && hints.some((h) => h.role === "assistant" && h.text.trim()) && (
-              <button
-                onClick={replayLast}
-                title={synth.speaking ? "Stop speech" : "Replay last coach hint"}
-                style={{
-                  marginLeft: "auto",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "0.2rem 0.55rem",
-                  borderRadius: 14,
-                  border: `1px solid ${synth.speaking ? "var(--accent)" : "var(--border-bright)"}`,
-                  background: synth.speaking ? "rgba(0,230,168,0.08)" : "transparent",
-                  color: synth.speaking ? "var(--accent)" : "var(--text-dim)",
-                  fontSize: 11,
-                  fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
-                  letterSpacing: "0.05em",
-                  textTransform: "uppercase",
-                  cursor: "pointer",
-                  transition: "all 0.15s",
-                }}
-              >
-                <Icon.volume size={12} />
-                {synth.speaking ? "Stop" : "Replay last"}
-              </button>
-            )}
+            {synth.supported &&
+              canVoice &&
+              hints.some((h) => h.role === "assistant" && h.text.trim()) && (
+                <button
+                  onClick={replayLast}
+                  title={synth.speaking ? "Stop speech" : "Replay last coach hint"}
+                  style={{
+                    marginLeft: "auto",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "0.2rem 0.55rem",
+                    borderRadius: 14,
+                    border: `1px solid ${synth.speaking ? "var(--accent)" : "var(--border-bright)"}`,
+                    background: synth.speaking ? "rgba(0,230,168,0.08)" : "transparent",
+                    color: synth.speaking ? "var(--accent)" : "var(--text-dim)",
+                    fontSize: 11,
+                    fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+                    letterSpacing: "0.05em",
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  <Icon.volume size={12} />
+                  {synth.speaking ? "Stop" : "Replay last"}
+                </button>
+              )}
           </div>
           <div
             ref={scrollRef}
@@ -556,7 +583,7 @@ export default function CoachPage() {
                       gap: 6,
                     }}
                   >
-                    {h.role === "assistant" && synth.supported && h.text.trim() && (
+                    {h.role === "assistant" && synth.supported && canVoice && h.text.trim() && (
                       <button
                         onClick={() => speakHint(h.text)}
                         title={synth.speaking ? "Stop speech" : "Read this hint aloud"}

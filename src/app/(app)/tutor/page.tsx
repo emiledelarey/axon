@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useAppState } from "@/components/providers/AppStateProvider";
 import { Btn } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
@@ -8,6 +9,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import { AxonMark } from "@/components/ui/AxonMark";
 import { Icon } from "@/components/ui/Icon";
 import { API_AVAILABLE, apiChatStream, fallbackChatResponse } from "@/lib/api";
+import { canSendTutorMessage, isPro, tutorRemaining } from "@/lib/entitlements";
 
 type Msg = { role: "user" | "assistant"; content: string; t: string };
 
@@ -35,7 +37,10 @@ const QUICK_ACTIONS = [
 ] as const;
 
 export default function TutorPage() {
-  const { state } = useAppState();
+  const { state, update } = useAppState();
+  const pro = isPro(state);
+  const remaining = tutorRemaining(state);
+  const canSend = canSendTutorMessage(state);
 
   const openingLine = useMemo(() => {
     if (state.materialLabel) {
@@ -65,6 +70,10 @@ export default function TutorPage() {
 
   const send = async () => {
     if (!input.trim() || streaming) return;
+    if (!canSend) {
+      setError("You've used your 30 tutor messages this month. Upgrade to Pro for unlimited chat.");
+      return;
+    }
     setError(null);
     const now = new Date().toLocaleTimeString("en-AU", {
       hour: "2-digit",
@@ -78,6 +87,17 @@ export default function TutorPage() {
     const userInput = input;
     setInput("");
     setStreaming(true);
+
+    // Free-tier metering: count every *user* message, roll over at month start.
+    if (!pro) {
+      const d = new Date();
+      const firstOfMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`;
+      const sameMonth = state.tutorPeriodStart?.slice(0, 7) === firstOfMonth.slice(0, 7);
+      update({
+        tutorPeriodStart: sameMonth ? state.tutorPeriodStart : firstOfMonth,
+        tutorMessagesThisMonth: sameMonth ? state.tutorMessagesThisMonth + 1 : 1,
+      });
+    }
 
     const onChunk = (chunk: unknown) => {
       const c = chunk as { text?: string; error?: string };
@@ -143,6 +163,15 @@ export default function TutorPage() {
             <Chip>No material loaded — general tutor</Chip>
           )}
           <Chip>Concepts dialogue · use Problem Coach for working</Chip>
+          {pro ? (
+            <Chip tone="accent">
+              <Icon.sparkles size={10} /> Pro · unlimited
+            </Chip>
+          ) : (
+            <Chip tone={remaining <= 5 ? "warn" : "info"}>
+              {remaining} / 30 messages left this month
+            </Chip>
+          )}
         </div>
       </div>
 
@@ -271,9 +300,52 @@ export default function TutorPage() {
         ))}
       </div>
 
+      {!canSend && (
+        <div
+          style={{
+            padding: "0.9rem 1rem",
+            marginBottom: 10,
+            borderRadius: 8,
+            border: "1px solid var(--accent-dim)",
+            background: "rgba(0,230,168,0.05)",
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            flexWrap: "wrap",
+          }}
+        >
+          <Icon.sparkles size={14} color="var(--accent)" />
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <div style={{ fontSize: 13, color: "var(--text)", marginBottom: 2 }}>
+              You&apos;ve used your 30 tutor messages this month.
+            </div>
+            <div style={{ fontSize: 11, color: "var(--text-dim)" }}>
+              Upgrade to Pro for unlimited tutor chat, Mock Exam, Live Write, and voice mode.
+            </div>
+          </div>
+          <Link
+            href="/pricing"
+            style={{
+              padding: "0.4rem 0.85rem",
+              borderRadius: 6,
+              background: "var(--accent)",
+              color: "var(--bg)",
+              fontSize: 12,
+              fontWeight: 500,
+              textDecoration: "none",
+              fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+              letterSpacing: "0.05em",
+              textTransform: "uppercase",
+            }}
+          >
+            Upgrade · A$20/mo
+          </Link>
+        </div>
+      )}
+
       <div style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
         <textarea
-          placeholder="Ask anything..."
+          placeholder={canSend ? "Ask anything..." : "Tutor cap reached — upgrade to continue"}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
@@ -284,14 +356,14 @@ export default function TutorPage() {
           }}
           rows={2}
           style={{ flex: 1, resize: "none", fontSize: 14 }}
-          disabled={streaming}
+          disabled={streaming || !canSend}
         />
         <Btn
           variant="primary"
           size="md"
           icon={streaming ? undefined : Icon.send}
           onClick={send}
-          disabled={streaming || !input.trim()}
+          disabled={streaming || !input.trim() || !canSend}
         >
           {streaming ? <Spinner size={12} /> : "Send"}
         </Btn>

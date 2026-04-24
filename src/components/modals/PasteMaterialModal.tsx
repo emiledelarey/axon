@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { API_AVAILABLE, apiGenerateCards } from "@/lib/api";
 import { DEMO_DECK, addDeckAsActive, allSubjects, type AppState } from "@/lib/state";
+import { canCreateExtraDeck } from "@/lib/entitlements";
 import { Btn } from "../ui/Button";
 import { Spinner } from "../ui/Spinner";
 import { Icon } from "../ui/Icon";
@@ -19,6 +21,7 @@ export function PasteMaterialModal({
   update: Update;
   state: AppState;
 }) {
+  const canCreate = canCreateExtraDeck(state);
   const existingSubjects = allSubjects(state);
   const [subject, setSubject] = useState(existingSubjects[0] || "");
   const [newSubjectMode, setNewSubjectMode] = useState(existingSubjects.length === 0);
@@ -34,6 +37,10 @@ export function PasteMaterialModal({
   const resolvedSubject = newSubjectMode ? newSubject.trim() : subject;
 
   const handleGenerate = async () => {
+    if (!canCreate) {
+      setError("Free plan is one deck. Upgrade to Pro for unlimited.");
+      return;
+    }
     if (!resolvedSubject) {
       setError("Pick or name a subject.");
       return;
@@ -73,6 +80,99 @@ export function PasteMaterialModal({
       setGenerating(false);
     }
   };
+
+  if (!canCreate) {
+    return (
+      <div className="modal-backdrop" onClick={onClose}>
+        <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 16,
+            }}
+          >
+            <div>
+              <span className="eyebrow" style={{ color: "var(--accent)" }}>
+                Axon Pro · A$20/month
+              </span>
+              <h2
+                className="italic-serif"
+                style={{ fontSize: 26, margin: "0.25rem 0 0", fontWeight: 400 }}
+              >
+                One deck on free. Upgrade for unlimited.
+              </h2>
+            </div>
+            <button
+              onClick={onClose}
+              style={{
+                color: "var(--text-dim)",
+                padding: 8,
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              <Icon.x size={18} />
+            </button>
+          </div>
+          <p
+            style={{
+              color: "var(--text-dim)",
+              fontSize: 13,
+              lineHeight: 1.55,
+              margin: "0 0 14px",
+            }}
+          >
+            Free includes one active deck — enough for a single unit. Pro unlocks unlimited decks,
+            Mock Exam, Live Write, voice mode, and unlimited tutor chat.
+          </p>
+          <ul
+            style={{
+              margin: "0 0 18px",
+              padding: "0 0 0 18px",
+              color: "var(--text)",
+              fontSize: 13,
+              lineHeight: 1.7,
+            }}
+          >
+            <li>Unlimited decks across every unit you take</li>
+            <li>Mock Exam Mode — timed past-paper drills</li>
+            <li>Live Write — rubric-aware essay coach</li>
+            <li>Voice mode — speech-to-text + read-aloud</li>
+            <li>Unlimited Tutor Chat</li>
+          </ul>
+          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+            <Link
+              href="/pricing"
+              onClick={onClose}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "0.55rem 1rem",
+                borderRadius: 6,
+                background: "var(--accent)",
+                color: "var(--bg)",
+                fontSize: 13,
+                fontWeight: 500,
+                textDecoration: "none",
+                fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+              }}
+            >
+              <Icon.sparkles size={13} /> Upgrade · A$20/mo
+            </Link>
+            <Btn variant="ghost" size="md" onClick={onClose}>
+              Not now
+            </Btn>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="modal-backdrop" onClick={onClose}>

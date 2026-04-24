@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 import type { AppState } from "@/lib/state";
+import { isPro } from "@/lib/entitlements";
 import { Icon, type IconComponent } from "../ui/Icon";
 import { AxonMark } from "../ui/AxonMark";
 import { Hairline } from "../ui/Hairline";
@@ -39,6 +40,7 @@ export function Sidebar({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const pro = isPro(state);
 
   return (
     <aside
@@ -138,6 +140,37 @@ export function Sidebar({
       </nav>
 
       <div style={{ marginTop: "auto", padding: "0 0.75rem" }}>
+        <button
+          onClick={() => router.push("/pricing")}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "0.5rem 0.6rem",
+            marginBottom: 8,
+            width: "100%",
+            borderRadius: 6,
+            border: `1px solid ${pro ? "var(--border)" : "var(--accent-dim)"}`,
+            background: pro ? "transparent" : "rgba(0,230,168,0.05)",
+            color: pro ? "var(--text-dim)" : "var(--accent)",
+            fontSize: 11,
+            fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+            letterSpacing: "0.05em",
+            textTransform: "uppercase",
+            cursor: "pointer",
+            textAlign: "left",
+          }}
+        >
+          {pro ? (
+            <>
+              <Icon.sparkles size={12} /> Pro · manage billing
+            </>
+          ) : (
+            <>
+              <Icon.sparkles size={12} /> Upgrade to Pro · A$20
+            </>
+          )}
+        </button>
         <Hairline style={{ marginBottom: 12 }} />
         <div
           style={{

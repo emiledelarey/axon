@@ -83,6 +83,33 @@ export type AppState = {
   writingRubric: string;
   writingDraft: string;
   writingNotes: string;
+
+  // Stripe subscription state — populated by the /api/webhook/stripe handler.
+  // null = never paid. status transitions follow Stripe: trialing → active →
+  // past_due → canceled. We treat "active" and "trialing" as Pro; anything
+  // else falls back to free tier.
+  subscription: Subscription | null;
+
+  // Tutor-chat monthly cap tracker — incremented client-side on each send in
+  // free tier, reset at month roll-over. Pro ignores this entirely.
+  tutorMessagesThisMonth: number;
+  tutorPeriodStart: string | null;
+};
+
+export type SubscriptionStatus =
+  | "active"
+  | "trialing"
+  | "past_due"
+  | "canceled"
+  | "incomplete"
+  | "unpaid";
+
+export type Subscription = {
+  status: SubscriptionStatus;
+  stripeCustomerId: string;
+  stripeSubscriptionId: string;
+  // ISO string, when the current period ends. Used to show "renews on X" UX.
+  currentPeriodEnd: string | null;
 };
 
 export const DEFAULT_STATE: AppState = {
@@ -110,6 +137,9 @@ export const DEFAULT_STATE: AppState = {
   writingRubric: "",
   writingDraft: "",
   writingNotes: "",
+  subscription: null,
+  tutorMessagesThisMonth: 0,
+  tutorPeriodStart: null,
 };
 
 /**

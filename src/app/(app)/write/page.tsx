@@ -7,6 +7,8 @@ import { Spinner } from "@/components/ui/Spinner";
 import { AxonMark } from "@/components/ui/AxonMark";
 import { Icon } from "@/components/ui/Icon";
 import { API_AVAILABLE, apiWriteStream, fallbackWriteResponse } from "@/lib/api";
+import { canUseLiveWrite } from "@/lib/entitlements";
+import { Paywall } from "@/components/billing/Paywall";
 import type { WriteAction } from "@/lib/api-types";
 
 const ACTIONS: Array<{ key: WriteAction; label: string; hint: string }> = [
@@ -29,6 +31,20 @@ export default function WritePage() {
   useEffect(() => {
     if (responseRef.current) responseRef.current.scrollTop = responseRef.current.scrollHeight;
   }, [response]);
+
+  if (!canUseLiveWrite(state)) {
+    return (
+      <Paywall
+        feature="Live Write"
+        blurb="A writing coach that won't write your essay for you. Paste your prompt, rubric, and draft — get structural feedback, counter-arguments, and rubric-linked critique."
+        bullets={[
+          "6 focused actions: plan · test thesis · find gaps · check rubric · improve paragraph · challenge reasoning",
+          "Anti-ghostwriting system prompt — no drop-in paragraphs",
+          "Drafts saved across devices",
+        ]}
+      />
+    );
+  }
 
   const hasMinimum = state.writingPrompt.trim() && state.writingDraft.trim();
 
