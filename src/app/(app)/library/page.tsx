@@ -95,7 +95,10 @@ export default function LibraryPage() {
   const subjects = Object.keys(grouped).sort();
 
   return (
-    <div className="fade-in" style={{ padding: "2rem 2.5rem", maxWidth: 1000, margin: "0 auto" }}>
+    <div
+      className="fade-in"
+      style={{ padding: "1.25rem 1.5rem", maxWidth: 1000, margin: "0 auto" }}
+    >
       <div
         style={{
           display: "flex",
@@ -110,7 +113,7 @@ export default function LibraryPage() {
           <span className="eyebrow">Your decks · {totalDecks}</span>
           <h1
             className="italic-serif"
-            style={{ fontSize: 40, margin: "0.5rem 0 0", fontWeight: 400 }}
+            style={{ fontSize: 28, margin: "0.35rem 0 0", fontWeight: 400 }}
           >
             {state.subject && <span style={{ color: "var(--text-fade)" }}>{state.subject} · </span>}
             {state.materialLabel || "Unnamed deck"}

@@ -9,12 +9,12 @@ export default function CohortPage() {
   const ranked = computeCohort(state.xp, state.streak);
 
   return (
-    <div className="fade-in" style={{ padding: "2rem 2.5rem", maxWidth: 900, margin: "0 auto" }}>
-      <div style={{ marginBottom: 28 }}>
+    <div className="fade-in" style={{ padding: "1.25rem 1.5rem", maxWidth: 900, margin: "0 auto" }}>
+      <div style={{ marginBottom: 18 }}>
         <span className="eyebrow">Cohort leaderboard · this week</span>
         <h1
           className="italic-serif"
-          style={{ fontSize: 44, margin: "0.5rem 0 0", fontWeight: 400 }}
+          style={{ fontSize: 30, margin: "0.35rem 0 0", fontWeight: 400 }}
         >
           Beta users · {ranked.length} so far.
         </h1>

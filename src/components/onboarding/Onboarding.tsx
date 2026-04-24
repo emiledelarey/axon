@@ -182,8 +182,8 @@ export function Onboarding({
             <h1
               className="italic-serif"
               style={{
-                fontSize: "clamp(48px, 7vw, 88px)",
-                lineHeight: 1.02,
+                fontSize: "clamp(32px, 5vw, 58px)",
+                lineHeight: 1.04,
                 margin: 0,
                 fontWeight: 400,
                 letterSpacing: "-0.02em",
@@ -198,9 +198,9 @@ export function Onboarding({
             <p
               style={{
                 color: "var(--text-dim)",
-                fontSize: 19,
-                maxWidth: 640,
-                marginTop: 32,
+                fontSize: 15,
+                maxWidth: 620,
+                marginTop: 20,
                 lineHeight: 1.55,
               }}
             >

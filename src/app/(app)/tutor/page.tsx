@@ -86,7 +86,7 @@ export default function TutorPage() {
     <div
       className="fade-in"
       style={{
-        padding: "1.5rem 2rem",
+        padding: "1rem 1.5rem",
         height: "100%",
         display: "flex",
         flexDirection: "column",
@@ -95,11 +95,11 @@ export default function TutorPage() {
         width: "100%",
       }}
     >
-      <div style={{ marginBottom: 20 }}>
+      <div style={{ marginBottom: 12 }}>
         <span className="eyebrow">Tutor Chat</span>
         <h1
           className="italic-serif"
-          style={{ fontSize: 30, margin: "0.25rem 0 0", fontWeight: 400 }}
+          style={{ fontSize: 22, margin: "0.2rem 0 0", fontWeight: 400 }}
         >
           Socratic. Knows your material. Never writes your assignment.
         </h1>

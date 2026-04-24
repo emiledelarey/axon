@@ -33,8 +33,8 @@ export default function DashboardPage() {
   const hasDeck = deck.length > 0;
 
   return (
-    <div className="fade-in" style={{ padding: "2.5rem", maxWidth: 1400, margin: "0 auto" }}>
-      <div style={{ marginBottom: 40 }}>
+    <div className="fade-in" style={{ padding: "1.5rem", maxWidth: 1400, margin: "0 auto" }}>
+      <div style={{ marginBottom: 22 }}>
         <span className="eyebrow">
           Today ·{" "}
           {new Date().toLocaleDateString("en-AU", {
@@ -46,16 +46,16 @@ export default function DashboardPage() {
         <h1
           className="italic-serif"
           style={{
-            fontSize: 56,
-            margin: "0.5rem 0 0.25rem",
-            lineHeight: 1.05,
+            fontSize: 38,
+            margin: "0.25rem 0 0.25rem",
+            lineHeight: 1.1,
             fontWeight: 400,
           }}
         >
           {greeting}
           {state.name ? `, ${state.name}` : ""}.
         </h1>
-        <p style={{ color: "var(--text-dim)", fontSize: 17, margin: 0, maxWidth: 640 }}>
+        <p style={{ color: "var(--text-dim)", fontSize: 14, margin: 0, maxWidth: 640 }}>
           {topWeak ? (
             <>
               Your weakest concept right now is{" "}
@@ -84,8 +84,8 @@ export default function DashboardPage() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 16,
-          marginBottom: 40,
+          gap: 12,
+          marginBottom: 22,
         }}
       >
         <StatTile
@@ -111,13 +111,13 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 20 }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 14 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {/* Primary action — resume hero */}
           <section
             className="panel"
             style={{
-              padding: "2rem",
+              padding: "1.25rem",
               borderColor: hasDeck ? "var(--accent-dim)" : "var(--border)",
               background: hasDeck ? "rgba(0,230,168,0.03)" : "var(--surface)",
             }}
@@ -143,8 +143,8 @@ export default function DashboardPage() {
                 <h2
                   className="italic-serif"
                   style={{
-                    fontSize: 32,
-                    margin: "0 0 12px",
+                    fontSize: 22,
+                    margin: "0 0 8px",
                     fontWeight: 400,
                     lineHeight: 1.2,
                   }}
@@ -164,10 +164,10 @@ export default function DashboardPage() {
                 </h2>
                 <p
                   style={{
-                    fontSize: 14,
+                    fontSize: 13,
                     color: "var(--text-dim)",
-                    margin: "0 0 24px",
-                    lineHeight: 1.6,
+                    margin: "0 0 14px",
+                    lineHeight: 1.55,
                   }}
                 >
                   {topWeak ? (
@@ -212,8 +212,8 @@ export default function DashboardPage() {
                 <h2
                   className="italic-serif"
                   style={{
-                    fontSize: 32,
-                    margin: "0 0 12px",
+                    fontSize: 22,
+                    margin: "0 0 8px",
                     fontWeight: 400,
                     lineHeight: 1.2,
                   }}
@@ -222,10 +222,10 @@ export default function DashboardPage() {
                 </h2>
                 <p
                   style={{
-                    fontSize: 14,
+                    fontSize: 13,
                     color: "var(--text-dim)",
-                    margin: "0 0 24px",
-                    lineHeight: 1.6,
+                    margin: "0 0 14px",
+                    lineHeight: 1.55,
                   }}
                 >
                   Lecture notes, textbook pages, a problem set — anything. Axon turns it into 10
@@ -266,11 +266,11 @@ export default function DashboardPage() {
                 onClick={() => router.push(row.href)}
                 className="panel"
                 style={{
-                  padding: "1.25rem",
+                  padding: "0.9rem",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "flex-start",
-                  gap: 10,
+                  gap: 8,
                   cursor: "pointer",
                   textAlign: "left",
                   transition: "all 0.15s",
@@ -293,8 +293,8 @@ export default function DashboardPage() {
         </div>
 
         <aside>
-          <section className="panel" style={{ padding: "1.5rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+          <section className="panel" style={{ padding: "1rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
               <Icon.alert size={14} color="var(--warn)" />
               <span className="eyebrow">Weak spots</span>
             </div>

@@ -14,7 +14,7 @@ export function StatTile({
   icon?: IconComponent;
 }) {
   return (
-    <div className="panel" style={{ padding: "1rem 1.25rem" }}>
+    <div className="panel" style={{ padding: "0.75rem 1rem" }}>
       <div
         style={{
           display: "flex",
@@ -26,7 +26,7 @@ export function StatTile({
         <span className="eyebrow">{label}</span>
         {IconEl && <IconEl size={14} color="var(--text-dim)" />}
       </div>
-      <div className="italic-serif" style={{ fontSize: 32, color: accent, lineHeight: 1 }}>
+      <div className="italic-serif" style={{ fontSize: 22, color: accent, lineHeight: 1 }}>
         {value}
       </div>
       {sub && (

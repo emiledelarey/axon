@@ -8,11 +8,11 @@ export function Topbar({ state }: { state: AppState }) {
   return (
     <header
       style={{
-        height: 56,
+        height: 44,
         borderBottom: "1px solid var(--border)",
         display: "flex",
         alignItems: "center",
-        padding: "0 1.5rem",
+        padding: "0 1rem",
         background: "var(--bg)",
         gap: 24,
       }}

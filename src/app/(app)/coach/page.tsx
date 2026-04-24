@@ -96,7 +96,7 @@ export default function CoachPage() {
     <div
       className="fade-in"
       style={{
-        padding: "1.5rem 2rem",
+        padding: "1rem 1.5rem",
         height: "100%",
         display: "flex",
         flexDirection: "column",
@@ -107,14 +107,14 @@ export default function CoachPage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: 20,
+          marginBottom: 12,
         }}
       >
         <div>
           <span className="eyebrow">Live Work · Socratic coach</span>
           <h1
             className="italic-serif"
-            style={{ fontSize: 30, margin: "0.25rem 0 0", fontWeight: 400 }}
+            style={{ fontSize: 22, margin: "0.2rem 0 0", fontWeight: 400 }}
           >
             Paste your working. Axon watches and coaches.
           </h1>

@@ -67,7 +67,7 @@ export function OnboardingStep({
         <h2
           className="italic-serif"
           style={{
-            fontSize: 44,
+            fontSize: 30,
             textAlign: "center",
             margin: "0 0 0.5rem",
             fontWeight: 400,
@@ -79,9 +79,9 @@ export function OnboardingStep({
         <p
           style={{
             color: "var(--text-dim)",
-            fontSize: 16,
+            fontSize: 14,
             textAlign: "center",
-            marginBottom: 40,
+            marginBottom: 24,
           }}
         >
           {sub}

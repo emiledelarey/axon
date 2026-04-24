@@ -41,14 +41,14 @@ export function Sidebar({
   return (
     <aside
       style={{
-        width: 240,
+        width: 200,
         flexShrink: 0,
         height: "100vh",
         background: "var(--bg)",
         borderRight: "1px solid var(--border)",
         display: "flex",
         flexDirection: "column",
-        padding: "1.25rem 0.75rem",
+        padding: "1rem 0.6rem",
         position: "relative",
         zIndex: 10,
       }}

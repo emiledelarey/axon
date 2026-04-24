@@ -42,12 +42,15 @@ export default function RoadmapPage() {
   ];
 
   return (
-    <div className="fade-in" style={{ padding: "2rem 2.5rem", maxWidth: 1200, margin: "0 auto" }}>
-      <div style={{ marginBottom: 40 }}>
+    <div
+      className="fade-in"
+      style={{ padding: "1.25rem 1.5rem", maxWidth: 1200, margin: "0 auto" }}
+    >
+      <div style={{ marginBottom: 22 }}>
         <span className="eyebrow">Public roadmap</span>
         <h1
           className="italic-serif"
-          style={{ fontSize: 48, margin: "0.5rem 0 0.75rem", fontWeight: 400 }}
+          style={{ fontSize: 32, margin: "0.35rem 0 0.5rem", fontWeight: 400 }}
         >
           What ships, and when.
         </h1>

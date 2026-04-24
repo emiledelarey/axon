@@ -171,8 +171,8 @@ export default function StudyPage() {
     <div
       className="fade-in"
       style={{
-        padding: "1.75rem 2.5rem",
-        maxWidth: 900,
+        padding: "1rem 1.5rem",
+        maxWidth: 880,
         margin: "0 auto",
         display: "flex",
         flexDirection: "column",
@@ -184,7 +184,7 @@ export default function StudyPage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: 24,
+          marginBottom: 14,
         }}
       >
         <button
@@ -231,7 +231,7 @@ export default function StudyPage() {
         </div>
       </div>
 
-      <div className="signal-bar" style={{ marginBottom: 28 }}>
+      <div className="signal-bar" style={{ marginBottom: 16 }}>
         <div
           className="signal-fill"
           style={{
@@ -247,32 +247,32 @@ export default function StudyPage() {
           alignItems: "center",
           justifyContent: "center",
           gap: 10,
-          marginBottom: 14,
+          marginBottom: 8,
         }}
       >
         {whyChip}
       </div>
 
-      <div style={{ textAlign: "center", marginBottom: 16 }}>
+      <div style={{ textAlign: "center", marginBottom: 10 }}>
         <span className="eyebrow" style={{ color: "var(--text-fade)" }}>
           Concept
         </span>
         <div
           className="italic-serif"
-          style={{ fontSize: 24, color: "var(--accent)", marginTop: 4 }}
+          style={{ fontSize: 20, color: "var(--accent)", marginTop: 2 }}
         >
           {card!.concept}
         </div>
       </div>
 
-      <div className="flip-container" style={{ flex: 1, maxHeight: 460, marginBottom: 28 }}>
+      <div className="flip-container" style={{ flex: 1, maxHeight: 400, marginBottom: 16 }}>
         <div className={`flip-inner ${flipped ? "flipped" : ""}`}>
           <div
             className="card-face panel"
             style={{
               position: "absolute",
               inset: 0,
-              padding: "2.5rem",
+              padding: "1.5rem 1.75rem",
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
@@ -283,10 +283,10 @@ export default function StudyPage() {
             <div
               className="italic-serif"
               style={{
-                fontSize: 30,
+                fontSize: 22,
                 lineHeight: 1.3,
                 color: "var(--text)",
-                marginBottom: 18,
+                marginBottom: 12,
                 fontWeight: 400,
                 maxWidth: 680,
               }}
@@ -296,10 +296,10 @@ export default function StudyPage() {
             <div
               style={{
                 color: "var(--text-dim)",
-                fontSize: 16,
+                fontSize: 14,
                 maxWidth: 640,
                 lineHeight: 1.55,
-                marginBottom: typedMode ? 20 : 32,
+                marginBottom: typedMode ? 14 : 20,
               }}
             >
               {card!.question}
@@ -331,7 +331,7 @@ export default function StudyPage() {
             style={{
               position: "absolute",
               inset: 0,
-              padding: "2.5rem",
+              padding: "1.5rem 1.75rem",
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
@@ -370,9 +370,9 @@ export default function StudyPage() {
             <div
               className="italic-serif grad-accent"
               style={{
-                fontSize: 40,
-                lineHeight: 1.1,
-                marginBottom: 22,
+                fontSize: 26,
+                lineHeight: 1.15,
+                marginBottom: 14,
                 fontWeight: 500,
                 wordBreak: "break-word",
               }}
