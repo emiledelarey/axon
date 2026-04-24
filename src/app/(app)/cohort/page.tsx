@@ -8,6 +8,47 @@ export default function CohortPage() {
   const { state } = useAppState();
   const ranked = computeCohort(state.xp, state.streak);
 
+  // Empty state — intentional per the Perplexity brief. We don't show fake
+  // rank data; we tell the student what's coming and what we're waiting on.
+  if (!ranked) {
+    return (
+      <div
+        className="fade-in"
+        style={{
+          padding: "1.25rem 1.5rem",
+          maxWidth: 640,
+          margin: "0 auto",
+          textAlign: "center",
+          paddingTop: 80,
+        }}
+      >
+        <Icon.users size={28} color="var(--text-fade)" />
+        <h1
+          className="italic-serif"
+          style={{
+            fontSize: 28,
+            margin: "14px 0 6px",
+            fontWeight: 400,
+          }}
+        >
+          Cohort benchmarking — coming soon.
+        </h1>
+        <p
+          style={{
+            color: "var(--text-dim)",
+            fontSize: 13,
+            lineHeight: 1.6,
+            margin: 0,
+          }}
+        >
+          Once enough students are running daily sessions, this page shows how your streak, XP, and
+          accuracy compare against your course cohort. We won&apos;t show you placeholder rankings —
+          you&apos;ll see real numbers or nothing.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="fade-in" style={{ padding: "1.25rem 1.5rem", maxWidth: 900, margin: "0 auto" }}>
       <div style={{ marginBottom: 18 }}>
@@ -16,19 +57,8 @@ export default function CohortPage() {
           className="italic-serif"
           style={{ fontSize: 30, margin: "0.35rem 0 0", fontWeight: 400 }}
         >
-          Beta users · {ranked.length} so far.
+          {ranked.length} student{ranked.length === 1 ? "" : "s"} this week.
         </h1>
-        <p
-          style={{
-            color: "var(--text-dim)",
-            fontSize: 14,
-            maxWidth: 600,
-            marginTop: 12,
-          }}
-        >
-          While Axon is in beta, you&apos;re ranked against the first students to try it. Ship a
-          study session, climb the board.
-        </p>
       </div>
 
       <div className="panel" style={{ padding: "1.5rem" }}>

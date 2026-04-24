@@ -1,7 +1,12 @@
 /**
- * Stub cohort data used for the beta leaderboard until we have real users to
- * compare against. Per Perplexity brief, this is slated to be hidden in a later
- * session — leave it in place for Session 0 to match v0 verbatim.
+ * Cohort data layer. The stub leaderboard shipped with v0 was removed in
+ * Session 10a — real cohort comparison unlocks once we have enough users
+ * to avoid showing fake rank data. See Perplexity brief: "hide entirely
+ * until there is enough real data."
+ *
+ * The types stay here so Session 11+ can wire a real backend (Supabase
+ * aggregate query or similar) behind the same shape and the CohortView
+ * can re-light without a rewrite.
  */
 
 export type CohortMember = {
@@ -16,21 +21,11 @@ export type RankedCohortMember = CohortMember & {
   isUser?: boolean;
 };
 
-export const COHORT_BASE: CohortMember[] = [
-  { name: "Maya P.", xp: 18420, streak: 41, crown: true },
-  { name: "Jamie L.", xp: 16980, streak: 38 },
-  { name: "Tom R.", xp: 14250, streak: 29 },
-  { name: "Ciaran W.", xp: 11840, streak: 19 },
-  { name: "Priya A.", xp: 10500, streak: 15 },
-  { name: "Noah F.", xp: 9820, streak: 12 },
-];
-
-/** Insert the current user into the cohort and rank by XP, highest first. */
-export function computeCohort(userXp: number, userStreak: number): RankedCohortMember[] {
-  const all: Array<CohortMember & { isUser?: boolean }> = [
-    ...COHORT_BASE.map((p) => ({ ...p })),
-    { name: "You", xp: userXp, streak: userStreak, isUser: true },
-  ];
-  all.sort((a, b) => b.xp - a.xp);
-  return all.map((p, i) => ({ ...p, rank: i + 1 }));
+/**
+ * Returns null until real cohort data is wired. Previously this inserted the
+ * current user into a hardcoded leaderboard — that's gone. Callers should
+ * render an empty-state when null.
+ */
+export function computeCohort(_userXp: number, _userStreak: number): RankedCohortMember[] | null {
+  return null;
 }
