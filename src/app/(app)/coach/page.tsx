@@ -5,7 +5,9 @@ import { useAppState } from "@/components/providers/AppStateProvider";
 import { Chip } from "@/components/ui/Chip";
 import { Spinner } from "@/components/ui/Spinner";
 import { AxonMark } from "@/components/ui/AxonMark";
+import { Icon } from "@/components/ui/Icon";
 import { API_AVAILABLE, apiChatStream, fallbackChatResponse } from "@/lib/api";
+import { useSpeechRecognition } from "@/lib/useSpeechRecognition";
 
 type Hint = {
   id: number;
@@ -59,6 +61,21 @@ export default function CoachPage() {
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  // Voice Mode (Session 8): mic toggle appends final dictation to the working
+  // field; the interim ribbon under the textarea shows the in-flight phrase.
+  // TTS replay + separate transcript panels arrive in Session 9.
+  const speech = useSpeechRecognition({
+    onFinal: (text) => {
+      const clean = text.trim();
+      if (!clean) return;
+      setWorking((w) => (w.trim().length === 0 ? clean : `${w.trimEnd()} ${clean}`));
+    },
+  });
+  const toggleMic = () => {
+    if (speech.listening) speech.stop();
+    else speech.start();
+  };
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -182,13 +199,62 @@ export default function CoachPage() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-            <label className="eyebrow" style={{ display: "block", marginBottom: 4 }}>
-              My working
-            </label>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: 4,
+              }}
+            >
+              <label className="eyebrow" style={{ display: "block" }}>
+                My working
+              </label>
+              {speech.supported && (
+                <button
+                  onClick={toggleMic}
+                  title={
+                    speech.listening
+                      ? "Stop listening"
+                      : "Speak your working — we'll transcribe into this box"
+                  }
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "0.25rem 0.6rem",
+                    borderRadius: 14,
+                    border: `1px solid ${speech.listening ? "var(--accent)" : "var(--border-bright)"}`,
+                    background: speech.listening ? "rgba(0,230,168,0.1)" : "transparent",
+                    color: speech.listening ? "var(--accent)" : "var(--text-dim)",
+                    fontSize: 11,
+                    fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+                    letterSpacing: "0.05em",
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  <Icon.mic size={12} />
+                  {speech.listening ? (
+                    <>
+                      <span className="status-dot live" style={{ background: "var(--accent)" }} />
+                      Listening
+                    </>
+                  ) : (
+                    "Speak"
+                  )}
+                </button>
+              )}
+            </div>
             <textarea
               value={working}
               onChange={(e) => setWorking(e.target.value)}
-              placeholder={"Type or paste your working as you go..."}
+              placeholder={
+                speech.supported
+                  ? "Type or speak your working. Mic captures into this box so you can edit it."
+                  : "Type or paste your working as you go..."
+              }
               style={{
                 flex: 1,
                 resize: "none",
@@ -198,6 +264,33 @@ export default function CoachPage() {
                 minHeight: 120,
               }}
             />
+            {(speech.listening || speech.interim) && (
+              <div
+                style={{
+                  marginTop: 6,
+                  fontSize: 12,
+                  color: "var(--accent)",
+                  fontStyle: "italic",
+                  lineHeight: 1.5,
+                  minHeight: 18,
+                }}
+              >
+                {speech.interim || <span style={{ opacity: 0.7 }}>Listening — speak now.</span>}
+              </div>
+            )}
+            {speech.error && (
+              <div
+                style={{
+                  marginTop: 6,
+                  fontSize: 11,
+                  color: "var(--danger)",
+                  fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+                }}
+              >
+                Mic: {speech.error}
+                {speech.error === "not-allowed" && " — grant microphone access in your browser."}
+              </div>
+            )}
           </div>
 
           <div>
