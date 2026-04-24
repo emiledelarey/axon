@@ -430,3 +430,41 @@ textarea:focus {
     min-height: 100%;
   }
 }
+
+/* ---- Landing page responsive grids ---- */
+.feature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+.feature-grid.reverse > .feature-text {
+  order: 2;
+}
+.feature-grid.reverse > .feature-mock {
+  order: 1;
+}
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 768px) {
+  .feature-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  /* Mobile reads top-to-bottom: text always above its mock, regardless of
+     the desktop alternating layout. */
+  .feature-grid > .feature-text,
+  .feature-grid.reverse > .feature-text {
+    order: 1;
+  }
+  .feature-grid > .feature-mock,
+  .feature-grid.reverse > .feature-mock {
+    order: 2;
+  }
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+}

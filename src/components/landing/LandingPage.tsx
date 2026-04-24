@@ -101,7 +101,7 @@ function Hero() {
         alignItems: "center",
         justifyContent: "center",
         overflow: "hidden",
-        padding: "4rem 1.5rem",
+        padding: "clamp(2.5rem, 6vw, 4rem) 1.25rem",
       }}
     >
       <div className="noise" />
@@ -266,8 +266,15 @@ const FEATURES: Feature[] = [
 
 function FeatureSections() {
   return (
-    <div id="features" style={{ padding: "4rem 0" }}>
-      <div className="container" style={{ marginBottom: 48, textAlign: "center" }}>
+    <div id="features" style={{ padding: "clamp(2rem, 4vw, 4rem) 0" }}>
+      <div
+        className="container"
+        style={{
+          marginBottom: "clamp(24px, 5vw, 48px)",
+          textAlign: "center",
+          padding: "0 1.25rem",
+        }}
+      >
         <span className="eyebrow">Six tools · one study loop</span>
         <h2
           className="italic-serif"
@@ -293,25 +300,17 @@ function FeatureRow({ feature, reverse }: { feature: Feature; reverse: boolean }
   return (
     <section
       style={{
-        padding: "4rem 1.5rem",
+        padding: "clamp(2.5rem, 5vw, 4rem) 1.25rem",
         borderTop: "1px solid var(--border)",
       }}
     >
-      <div
-        className="container"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 48,
-          alignItems: "center",
-        }}
-      >
+      <div className={`container feature-grid${reverse ? " reverse" : ""}`}>
         <div
+          className="feature-text"
           style={{
-            order: reverse ? 2 : 1,
             display: "flex",
             flexDirection: "column",
-            gap: 16,
+            gap: 14,
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -323,7 +322,7 @@ function FeatureRow({ feature, reverse }: { feature: Feature; reverse: boolean }
           <h3
             className="italic-serif"
             style={{
-              fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
+              fontSize: "clamp(1.5rem, 3vw, 2.2rem)",
               margin: 0,
               fontWeight: 400,
               lineHeight: 1.15,
@@ -340,12 +339,19 @@ function FeatureRow({ feature, reverse }: { feature: Feature; reverse: boolean }
               ),
             )}
           </h3>
-          <p style={{ fontSize: 15, lineHeight: 1.65, color: "var(--text-dim)", margin: 0 }}>
+          <p
+            style={{
+              fontSize: "clamp(0.95rem, 1.4vw, 1rem)",
+              lineHeight: 1.65,
+              color: "var(--text-dim)",
+              margin: 0,
+            }}
+          >
             {feature.subline}
           </p>
         </div>
 
-        <div style={{ order: reverse ? 1 : 2 }}>
+        <div className="feature-mock">
           <Mock />
         </div>
       </div>
@@ -715,13 +721,13 @@ function PricingSlice() {
   return (
     <section
       style={{
-        padding: "6rem 1.5rem",
+        padding: "clamp(3rem, 6vw, 6rem) 1.25rem",
         borderTop: "1px solid var(--border)",
         background: "var(--surface)",
       }}
     >
       <div className="container" style={{ maxWidth: 900 }}>
-        <div style={{ textAlign: "center", marginBottom: 40 }}>
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
           <span className="eyebrow">Pricing · one tier, one price</span>
           <h2
             className="italic-serif"
@@ -735,7 +741,7 @@ function PricingSlice() {
           </h2>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div className="pricing-grid">
           <PriceCard
             title="Free"
             price="A$0"
