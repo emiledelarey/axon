@@ -6,6 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import { useAppState } from "@/components/providers/AppStateProvider";
 import { FeedbackButton } from "@/components/shell/FeedbackButton";
 import { Onboarding } from "@/components/onboarding/Onboarding";
+import { LandingPage } from "@/components/landing/LandingPage";
 
 export default function Home() {
   const router = useRouter();
@@ -28,20 +29,27 @@ export default function Home() {
     }
   }, [isSignedIn, state.onboardingComplete, router]);
 
-  // Avoid flashing the landing while Clerk hydrates.
+  // Avoid flashing any landing/onboarding while Clerk hydrates.
   if (!isLoaded) return null;
 
   if (isSignedIn && state.onboardingComplete) return null;
 
-  return (
-    <>
-      <Onboarding
-        state={state}
-        update={update}
-        isSignedIn={!!isSignedIn}
-        onDone={() => router.push("/dashboard")}
-      />
-      <FeedbackButton />
-    </>
-  );
+  // Signed in but not onboarded — finish the in-app onboarding flow. This
+  // also covers the post-sign-up return where Clerk lands on / first.
+  if (isSignedIn) {
+    return (
+      <>
+        <Onboarding
+          state={state}
+          update={update}
+          isSignedIn
+          onDone={() => router.push("/dashboard")}
+        />
+        <FeedbackButton />
+      </>
+    );
+  }
+
+  // Signed out — public marketing landing.
+  return <LandingPage />;
 }
