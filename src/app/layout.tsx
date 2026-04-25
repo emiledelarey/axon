@@ -96,7 +96,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           fontFamily: "var(--font-plex), 'IBM Plex Sans', system-ui, sans-serif",
         },
         elements: {
-          rootBox: { width: "100%" },
           card: {
             background: "#11172a",
             border: "1px solid #1f2847",
