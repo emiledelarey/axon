@@ -124,69 +124,56 @@ function Hero() {
         className="fade-in"
         style={{
           position: "relative",
-          maxWidth: 840,
+          maxWidth: 900,
           textAlign: "center",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: 22,
+          gap: 32,
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span className="status-dot live" />
           <span className="eyebrow" style={{ color: "var(--accent)" }}>
-            Rubric-aware · Socratic · Anti-ghostwriter
+            For students who actually want to learn
           </span>
         </div>
 
         <h1
           className="display-serif"
           style={{
-            fontSize: "clamp(2.4rem, 6vw, 4.5rem)",
-            lineHeight: 1.05,
+            fontSize: "clamp(2.8rem, 8.5vw, 6rem)",
+            lineHeight: 0.98,
             margin: 0,
             fontWeight: 400,
           }}
         >
-          The AI study tool that{" "}
-          <span className="italic-serif grad-accent">refuses to write your essay</span> for you.
+          Won&apos;t write your essay.
+          <br />
+          <span className="italic-serif grad-accent">Will make you smarter.</span>
         </h1>
 
-        <p
+        <Link
+          href="/sign-up"
+          className="btn btn-primary"
+          style={{ padding: "1.1rem 2rem", fontSize: 16, borderRadius: 8 }}
+        >
+          Start free <Icon.arrowRight size={16} />
+        </Link>
+
+        <a
+          href="#features"
+          className="eyebrow"
           style={{
-            fontSize: "clamp(1rem, 1.6vw, 1.2rem)",
-            lineHeight: 1.55,
-            color: "var(--text-dim)",
-            maxWidth: 620,
-            margin: 0,
+            color: "var(--text-fade)",
+            textDecoration: "none",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
           }}
         >
-          Axon coaches your reasoning. It plans, challenges, and checks — but it never ghost-writes.
-          That&apos;s the whole point.
-        </p>
-
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-          <Link
-            href="/sign-up"
-            className="btn btn-primary"
-            style={{ padding: "0.95rem 1.6rem", fontSize: 14 }}
-          >
-            Start free <Icon.arrowRight size={14} />
-          </Link>
-          <a
-            href="#features"
-            className="btn btn-secondary"
-            style={{ padding: "0.95rem 1.6rem", fontSize: 14 }}
-          >
-            See how it coaches
-          </a>
-        </div>
-
-        <div style={{ display: "flex", gap: 18, flexWrap: "wrap", justifyContent: "center" }}>
-          <Chip>Free tier · 1 deck · 30 tutor msgs/mo</Chip>
-          <Chip tone="accent">Pro · A$20/month</Chip>
-          <Chip>Cancel anytime</Chip>
-        </div>
+          Scroll <Icon.chevronDown size={11} />
+        </a>
       </div>
     </section>
   );
@@ -198,7 +185,6 @@ type Feature = {
   eyebrow: string;
   headline: string;
   spineSpan: string;
-  subline: string;
   icon: IconComponent;
   mock: () => React.ReactElement;
 };
@@ -206,55 +192,43 @@ type Feature = {
 const FEATURES: Feature[] = [
   {
     eyebrow: "Daily Study",
-    headline: "Spaced repetition that adapts to what you keep missing.",
-    spineSpan: "what you keep missing",
-    subline:
-      "Fifteen minutes a day. Your weakest concepts surface first. Typed-recall mode verifies you actually know it — not just that you recognise the right answer.",
+    headline: "Remembers what you forget.",
+    spineSpan: "forget",
     icon: Icon.brain,
     mock: StudyMock,
   },
   {
-    eyebrow: "Mock Exam Mode",
-    headline: "Time-boxed drills pulled straight from your own material.",
-    spineSpan: "your own material",
-    subline:
-      "Sixty seconds per question. Flag-for-review. Self-graded score with weak concepts piped straight back into tomorrow's Daily Study.",
+    eyebrow: "Mock Exam",
+    headline: "You vs. the clock.",
+    spineSpan: "the clock",
     icon: Icon.trophy,
     mock: ExamMock,
   },
   {
     eyebrow: "Problem Coach",
-    headline: "Show your working. Axon points at the next step.",
-    spineSpan: "the next step",
-    subline:
-      "Four targeted actions: check logic, check formula choice, check arithmetic, give the next hint. Never the full answer.",
+    headline: "Hints. Never answers.",
+    spineSpan: "Hints.",
     icon: Icon.target,
     mock: CoachMock,
   },
   {
     eyebrow: "Live Write",
-    headline: "A writing coach that won't write your essay.",
-    spineSpan: "won't write your essay",
-    subline:
-      "Paste prompt, rubric, draft. Get structural feedback, counter-arguments, rubric-linked critique. Zero drop-in paragraphs.",
+    headline: "Coaches. Doesn't write.",
+    spineSpan: "Coaches.",
     icon: Icon.lightbulb,
     mock: WriteMock,
   },
   {
     eyebrow: "Tutor Chat",
-    headline: "Deck-aware Socratic tutor.",
-    spineSpan: "Deck-aware",
-    subline:
-      "Knows the material you're revising. Diagnoses first, teaches second. Free tier: 30 messages a month. Pro: unlimited.",
+    headline: "Reads your slides. Quizzes you.",
+    spineSpan: "Quizzes you",
     icon: Icon.msg,
     mock: TutorMock,
   },
   {
     eyebrow: "Voice Mode",
-    headline: "Speak your working. Hear your coach.",
-    spineSpan: "Hear your coach",
-    subline:
-      "Dictate into Problem Coach while you're walking. Hints read back aloud. No backend cost — it uses your browser's native speech.",
+    headline: "Just talk to it.",
+    spineSpan: "Just talk",
     icon: Icon.volume,
     mock: VoiceMock,
   },
@@ -262,42 +236,38 @@ const FEATURES: Feature[] = [
 
 function FeatureSections() {
   return (
-    <div id="features" style={{ padding: "clamp(2rem, 4vw, 4rem) 0" }}>
-      <div
-        className="container"
-        style={{
-          marginBottom: "clamp(24px, 5vw, 48px)",
-          textAlign: "center",
-          padding: "0 1.25rem",
-        }}
-      >
-        <span className="eyebrow">Six tools · one study loop</span>
-        <h2
-          className="display-serif"
-          style={{
-            fontSize: "clamp(1.8rem, 3.6vw, 2.6rem)",
-            margin: "0.5rem 0 0",
-            fontWeight: 400,
-          }}
-        >
-          Every surface is built to <span className="italic-serif grad-accent">coach</span>, not to
-          answer.
-        </h2>
-      </div>
-
+    <div id="features">
       {FEATURES.map((f, i) => (
-        <FeatureRow key={f.eyebrow} feature={f} reverse={i % 2 === 1} />
+        <FeatureRow
+          key={f.eyebrow}
+          feature={f}
+          index={i}
+          total={FEATURES.length}
+          reverse={i % 2 === 1}
+        />
       ))}
     </div>
   );
 }
 
-function FeatureRow({ feature, reverse }: { feature: Feature; reverse: boolean }) {
+function FeatureRow({
+  feature,
+  index,
+  total,
+  reverse,
+}: {
+  feature: Feature;
+  index: number;
+  total: number;
+  reverse: boolean;
+}) {
   const Mock = feature.mock;
+  const num = String(index + 1).padStart(2, "0");
+  const totalStr = String(total).padStart(2, "0");
   return (
     <section
       style={{
-        padding: "clamp(2.5rem, 5vw, 4rem) 1.25rem",
+        padding: "clamp(3rem, 7vw, 5rem) 1.25rem",
         borderTop: "1px solid var(--border)",
       }}
     >
@@ -307,22 +277,40 @@ function FeatureRow({ feature, reverse }: { feature: Feature; reverse: boolean }
           style={{
             display: "flex",
             flexDirection: "column",
-            gap: 14,
+            gap: 18,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <feature.icon size={16} color="var(--accent)" />
-            <span className="eyebrow" style={{ color: "var(--accent)" }}>
-              {feature.eyebrow}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              gap: 14,
+              color: "var(--text-fade)",
+              fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+            }}
+          >
+            <span
+              style={{
+                fontSize: "clamp(2.4rem, 5vw, 3.2rem)",
+                color: "var(--accent)",
+                fontWeight: 500,
+                lineHeight: 1,
+              }}
+            >
+              {num}
+            </span>
+            <span style={{ fontSize: 11, letterSpacing: "0.15em" }}>/ {totalStr}</span>
+            <span className="eyebrow" style={{ color: "var(--text-dim)", marginLeft: "auto" }}>
+              <feature.icon size={11} /> {feature.eyebrow}
             </span>
           </div>
           <h3
             className="display-serif"
             style={{
-              fontSize: "clamp(1.5rem, 3vw, 2.2rem)",
+              fontSize: "clamp(2rem, 5vw, 3rem)",
               margin: 0,
               fontWeight: 400,
-              lineHeight: 1.15,
+              lineHeight: 1.05,
             }}
           >
             {feature.headline.split(feature.spineSpan).map((chunk, idx, arr) =>
@@ -336,16 +324,6 @@ function FeatureRow({ feature, reverse }: { feature: Feature; reverse: boolean }
               ),
             )}
           </h3>
-          <p
-            style={{
-              fontSize: "clamp(0.95rem, 1.4vw, 1rem)",
-              lineHeight: 1.65,
-              color: "var(--text-dim)",
-              margin: 0,
-            }}
-          >
-            {feature.subline}
-          </p>
         </div>
 
         <div className="feature-mock">
