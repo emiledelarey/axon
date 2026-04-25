@@ -957,6 +957,14 @@ function Footer() {
             justifyContent: "center",
           }}
         >
+          <Link href="/privacy" style={{ color: "var(--text-fade)" }}>
+            Privacy
+          </Link>
+          <span>·</span>
+          <Link href="/terms" style={{ color: "var(--text-fade)" }}>
+            Terms
+          </Link>
+          <span>·</span>
           <span>© {new Date().getFullYear()} Napkin Group</span>
           <span>·</span>
           <span>A$20/mo · cancel anytime</span>

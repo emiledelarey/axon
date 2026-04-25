@@ -27,10 +27,52 @@ const jet = JetBrains_Mono({
   weight: ["400", "500", "600"],
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://axon.study";
+
 export const metadata: Metadata = {
-  title: "Axon — The study tool students actually use",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Axon — won't write your essay; will make you smarter",
+    template: "%s · Axon",
+  },
   description:
-    "Paste any study material. Axon builds you a daily practice loop with spaced repetition, error-classified micro-lessons, and a Socratic tutor.",
+    "Axon is a Socratic study companion for university students. Spaced repetition, mock exams, a writing coach that won't ghost-write, and a tutor that quizzes back instead of monologuing.",
+  applicationName: "Axon",
+  keywords: [
+    "study app",
+    "spaced repetition",
+    "flashcards",
+    "AI tutor",
+    "essay coach",
+    "mock exam",
+    "university",
+    "Socratic tutor",
+  ],
+  authors: [{ name: "Napkin Group" }],
+  creator: "Napkin Group",
+  publisher: "Napkin Group",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "en_AU",
+    url: SITE_URL,
+    siteName: "Axon",
+    title: "Axon — won't write your essay; will make you smarter",
+    description:
+      "Spaced repetition on your own notes, a tutor that quizzes back, and a writing coach that refuses to ghost-write. Built for university students who actually want to learn.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Axon — won't write your essay; will make you smarter",
+    description:
+      "Spaced repetition, mock exams, a writing coach that refuses to ghost-write. For students who actually want to learn.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+  },
+  category: "education",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
