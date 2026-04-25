@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
+import { Fraunces, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { Providers } from "@/components/providers/Providers";
 import "./globals.css";
 
-// Instrument Serif is our display face — upright reads "we stand for something"
-// for headlines; italic only comes in as a highlight (see .italic-serif).
-// 400 weight only, which is fine because hierarchy is driven by size, not weight.
-const serif = Instrument_Serif({
+// Fraunces is our display face — variable-weight serif with enough character
+// for headlines and enough weight range that upright 500 reads confident, not
+// thin. Italic still carries emphasis via .italic-serif at a lighter weight.
+const serif = Fraunces({
   variable: "--font-serif",
   subsets: ["latin"],
-  weight: "400",
+  weight: ["400", "500", "600"],
   style: ["normal", "italic"],
 });
 

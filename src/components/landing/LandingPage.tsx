@@ -185,8 +185,9 @@ type Feature = {
   eyebrow: string;
   headline: string;
   spineSpan: string;
+  description: string;
   icon: IconComponent;
-  mock: () => React.ReactElement;
+  mock: (props: { label: string }) => React.ReactElement;
 };
 
 const FEATURES: Feature[] = [
@@ -194,6 +195,8 @@ const FEATURES: Feature[] = [
     eyebrow: "Daily Study",
     headline: "Remembers what you forget.",
     spineSpan: "forget",
+    description:
+      "Spaced repetition on your own notes — weak concepts resurface before the exam, not after.",
     icon: Icon.brain,
     mock: StudyMock,
   },
@@ -201,6 +204,8 @@ const FEATURES: Feature[] = [
     eyebrow: "Mock Exam",
     headline: "You vs. the clock.",
     spineSpan: "the clock",
+    description:
+      "Timed full-length practice with self-graded review, so exam day feels like the tenth take, not the first.",
     icon: Icon.trophy,
     mock: ExamMock,
   },
@@ -208,6 +213,8 @@ const FEATURES: Feature[] = [
     eyebrow: "Problem Coach",
     headline: "Hints. Never answers.",
     spineSpan: "Hints.",
+    description:
+      "Paste your working. It points at the flaw in your reasoning and makes you fix it yourself.",
     icon: Icon.target,
     mock: CoachMock,
   },
@@ -215,6 +222,8 @@ const FEATURES: Feature[] = [
     eyebrow: "Live Write",
     headline: "Coaches. Doesn't write.",
     spineSpan: "Coaches.",
+    description:
+      "Scores your draft against the rubric and presses on the weak arguments — no sentences get written for you.",
     icon: Icon.lightbulb,
     mock: WriteMock,
   },
@@ -222,6 +231,8 @@ const FEATURES: Feature[] = [
     eyebrow: "Tutor Chat",
     headline: "Reads your slides. Quizzes you.",
     spineSpan: "Quizzes you",
+    description:
+      "Drop in your course materials and it quizzes you back instead of monologuing a Wikipedia summary.",
     icon: Icon.msg,
     mock: TutorMock,
   },
@@ -229,6 +240,8 @@ const FEATURES: Feature[] = [
     eyebrow: "Voice Mode",
     headline: "Just talk to it.",
     spineSpan: "Just talk",
+    description:
+      "Think out loud while you walk, cook, or pace the room — every feature above works hands-free.",
     icon: Icon.volume,
     mock: VoiceMock,
   },
@@ -324,10 +337,37 @@ function FeatureRow({
               ),
             )}
           </h3>
+          <p
+            style={{
+              fontSize: "clamp(0.95rem, 1.15vw, 1.05rem)",
+              lineHeight: 1.55,
+              color: "var(--text-dim)",
+              maxWidth: "38ch",
+              margin: 0,
+            }}
+          >
+            {feature.description}
+          </p>
         </div>
 
         <div className="feature-mock">
-          <Mock />
+          <div
+            className="eyebrow"
+            style={{
+              color: "var(--text-fade)",
+              marginBottom: 10,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <span
+              aria-hidden
+              style={{ width: 18, height: 1, background: "var(--border-bright)" }}
+            />
+            <span>Preview · live from the app</span>
+          </div>
+          <Mock label={feature.eyebrow.toLowerCase().replace(/\s+/g, "_")} />
         </div>
       </div>
     </section>
@@ -336,34 +376,59 @@ function FeatureRow({
 
 /* ------------------------------------------------------------------ Mocks */
 
-function MockFrame({ children }: { children: React.ReactNode }) {
+function MockFrame({ children, label }: { children: React.ReactNode; label?: string }) {
   return (
     <div
       className="panel"
       style={{
-        padding: "1rem",
+        padding: 0,
         position: "relative",
         boxShadow: "0 40px 80px -40px rgba(0,230,168,0.15)",
+        overflow: "hidden",
+        background: "var(--surface)",
       }}
     >
-      {/* Window chrome dots */}
-      <div style={{ display: "flex", gap: 5, marginBottom: 10 }}>
-        <span
-          style={{ width: 8, height: 8, borderRadius: 4, background: "var(--border-bright)" }}
-        />
-        <span
-          style={{ width: 8, height: 8, borderRadius: 4, background: "var(--border-bright)" }}
-        />
-        <span style={{ width: 8, height: 8, borderRadius: 4, background: "var(--accent-dim)" }} />
+      {/* Title bar: chrome dots + file-tab label, visually separating the preview from the heading above */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          padding: "0.55rem 0.85rem",
+          borderBottom: "1px solid var(--border)",
+          background: "var(--bg)",
+        }}
+      >
+        <div style={{ display: "flex", gap: 5 }}>
+          <span
+            style={{ width: 8, height: 8, borderRadius: 4, background: "var(--border-bright)" }}
+          />
+          <span
+            style={{ width: 8, height: 8, borderRadius: 4, background: "var(--border-bright)" }}
+          />
+          <span style={{ width: 8, height: 8, borderRadius: 4, background: "var(--accent-dim)" }} />
+        </div>
+        {label ? (
+          <span
+            style={{
+              fontFamily: "var(--font-jet), 'JetBrains Mono', monospace",
+              fontSize: 11,
+              color: "var(--text-dim)",
+              letterSpacing: "0.04em",
+            }}
+          >
+            {label}
+          </span>
+        ) : null}
       </div>
-      {children}
+      <div style={{ padding: "1rem" }}>{children}</div>
     </div>
   );
 }
 
-function StudyMock() {
+function StudyMock({ label }: { label: string }) {
   return (
-    <MockFrame>
+    <MockFrame label={label}>
       <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
         <Chip tone="accent">
           <span className="status-dot live" /> Card 3 / 10
@@ -400,9 +465,9 @@ function StudyMock() {
   );
 }
 
-function ExamMock() {
+function ExamMock({ label }: { label: string }) {
   return (
-    <MockFrame>
+    <MockFrame label={label}>
       <div
         style={{
           display: "flex",
@@ -444,7 +509,7 @@ function ExamMock() {
   );
 }
 
-function CoachMock() {
+function CoachMock({ label }: { label: string }) {
   const chipRow: Array<{ label: string; active?: boolean }> = [
     { label: "Check logic", active: true },
     { label: "Check formula" },
@@ -452,7 +517,7 @@ function CoachMock() {
     { label: "Give hint" },
   ];
   return (
-    <MockFrame>
+    <MockFrame label={label}>
       <div className="eyebrow" style={{ marginBottom: 8 }}>
         My working
       </div>
@@ -516,10 +581,10 @@ function CoachMock() {
   );
 }
 
-function WriteMock() {
+function WriteMock({ label }: { label: string }) {
   const chips = ["Plan", "Test thesis", "Find gaps", "Check rubric", "Improve para", "Challenge"];
   return (
-    <MockFrame>
+    <MockFrame label={label}>
       <div className="eyebrow" style={{ marginBottom: 6 }}>
         Rubric alignment
       </div>
@@ -576,9 +641,9 @@ function WriteMock() {
   );
 }
 
-function TutorMock() {
+function TutorMock({ label }: { label: string }) {
   return (
-    <MockFrame>
+    <MockFrame label={label}>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         <div
           style={{
@@ -620,10 +685,10 @@ function TutorMock() {
   );
 }
 
-function VoiceMock() {
+function VoiceMock({ label }: { label: string }) {
   const bars = [18, 28, 42, 60, 74, 52, 38, 64, 80, 46, 32, 22];
   return (
-    <MockFrame>
+    <MockFrame label={label}>
       <div
         style={{ display: "flex", alignItems: "center", gap: 14, padding: "0.5rem 0.2rem 1rem" }}
       >

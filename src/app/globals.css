@@ -49,22 +49,21 @@ body {
 }
 
 .font-display {
-  font-family: var(--font-serif), "Instrument Serif", Georgia, serif;
+  font-family: var(--font-serif), Fraunces, Georgia, serif;
 }
 .font-mono {
   font-family: var(--font-jet), "JetBrains Mono", ui-monospace, monospace;
 }
-/* Upright Instrument Serif for primary headlines — the voice of the brand. */
+/* Upright Fraunces at medium weight — confident editorial voice, not thin. */
 .display-serif {
-  font-family: var(--font-serif), "Instrument Serif", Georgia, serif;
+  font-family: var(--font-serif), Fraunces, Georgia, serif;
   font-style: normal;
-  font-weight: 400;
-  letter-spacing: -0.015em;
+  font-weight: 500;
+  letter-spacing: -0.02em;
 }
-/* Italic variant kept as an *emphasis* mode, not the default headline style.
-   Use on spine spans / highlighted phrases inside a .display-serif headline. */
+/* Italic variant kept as an *emphasis* mode for spine spans inside a headline. */
 .italic-serif {
-  font-family: var(--font-serif), "Instrument Serif", Georgia, serif;
+  font-family: var(--font-serif), Fraunces, Georgia, serif;
   font-style: italic;
   font-weight: 400;
 }
