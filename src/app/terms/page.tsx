@@ -22,7 +22,7 @@ export default function TermsPage() {
       <LegalSection title="1. Who you're agreeing with">
         <p>
           Axon is operated by <strong>Napkin Group</strong>, a sole-trader business registered in
-          Australia (ABN <em>[YOUR ABN]</em>). When this document says &ldquo;we&rdquo; or
+          Australia (ABN 38 586 173 074). When this document says &ldquo;we&rdquo; or
           &ldquo;us&rdquo;, that&apos;s who. When it says &ldquo;you&rdquo;, that&apos;s the person
           using Axon under their account.
         </p>

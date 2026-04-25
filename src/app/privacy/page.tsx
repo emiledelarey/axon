@@ -23,7 +23,7 @@ export default function PrivacyPage() {
       <LegalSection title="1. Who runs Axon">
         <p>
           Axon is operated by <strong>Napkin Group</strong>, a sole-trader business registered in
-          Australia (ABN <em>[YOUR ABN]</em>). Contact:{" "}
+          Australia (ABN 38 586 173 074). Contact:{" "}
           <a href="mailto:emiledelarey@gmail.com">emiledelarey@gmail.com</a>.
         </p>
       </LegalSection>
