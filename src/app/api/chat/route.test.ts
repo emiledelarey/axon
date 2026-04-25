@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { __resetRateLimits } from "@/lib/claude";
+import { DEFAULT_STATE } from "@/lib/state";
 
 vi.mock("@/lib/claude", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/claude")>();
@@ -11,8 +12,17 @@ vi.mock("@/lib/claude", async (importOriginal) => {
   };
 });
 
+vi.mock("@/lib/server-auth", () => ({
+  requireUser: vi.fn(async () => ({ userId: "test_user", state: DEFAULT_STATE })),
+  unauthorized: () => Response.json({ error: "Unauthorized" }, { status: 401 }),
+  paywall: (reason: string) => Response.json({ error: "Paywall", reason }, { status: 402 }),
+}));
+
 import { client } from "@/lib/claude";
+import { requireUser } from "@/lib/server-auth";
 import { POST } from "./route";
+
+const mockedRequireUser = requireUser as unknown as ReturnType<typeof vi.fn>;
 
 const mockedStream = client.messages.stream as unknown as ReturnType<typeof vi.fn>;
 
@@ -55,6 +65,38 @@ describe("POST /api/chat", () => {
   beforeEach(() => {
     mockedStream.mockReset();
     __resetRateLimits();
+    mockedRequireUser.mockResolvedValue({ userId: "test_user", state: DEFAULT_STATE });
+  });
+
+  it("returns 401 when not signed in", async () => {
+    mockedRequireUser.mockResolvedValueOnce(null);
+    const res = await POST(
+      makeReq({ material: "x".repeat(120), messages: [{ role: "user", content: "hi" }] }),
+    );
+    expect(res.status).toBe(401);
+    expect(mockedStream).not.toHaveBeenCalled();
+  });
+
+  it("returns 402 with reason 'tutor_quota' when free-tier user is over the monthly cap", async () => {
+    mockedRequireUser.mockResolvedValueOnce({
+      userId: "test_user",
+      state: {
+        ...DEFAULT_STATE,
+        tutorMessagesThisMonth: 30,
+        tutorPeriodStart: new Date().toISOString(),
+      },
+    });
+    const res = await POST(
+      makeReq({
+        material: "x".repeat(120),
+        mode: "tutor",
+        messages: [{ role: "user", content: "hi" }],
+      }),
+    );
+    expect(res.status).toBe(402);
+    const body = (await res.json()) as { reason: string };
+    expect(body.reason).toBe("tutor_quota");
+    expect(mockedStream).not.toHaveBeenCalled();
   });
 
   it("rejects missing material with 400", async () => {

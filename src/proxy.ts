@@ -1,8 +1,12 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-// Anything inside these route groups requires a signed-in Clerk user. The landing
-// page (/), sign-in/sign-up flows, and the API routes (which have their own
-// rate limiting and are OK to hit anonymously for now) stay public.
+// Anything inside these route groups requires a signed-in Clerk user at the
+// proxy layer. The landing page (/) and sign-in/sign-up flows stay public.
+//
+// API routes are intentionally NOT proxy-gated — each route handler calls
+// `requireUser()` from @/lib/server-auth itself so it can return a typed 401.
+// The Stripe webhook (`/api/webhook/stripe`) is the only API route that must
+// be hit anonymously; it verifies authenticity via HMAC signature instead.
 const isProtectedRoute = createRouteMatcher([
   "/dashboard(.*)",
   "/study(.*)",

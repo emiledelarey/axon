@@ -1,5 +1,7 @@
-import { client, getIp, rateLimit } from "@/lib/claude";
+import { client, rateLimit } from "@/lib/claude";
 import { LIMITS, MODELS } from "@/lib/constants";
+import { canUseLiveWrite } from "@/lib/entitlements";
+import { requireUser, unauthorized, paywall } from "@/lib/server-auth";
 import type { WriteAction, WriteRequest, WriteStreamChunk } from "@/lib/api-types";
 
 const WRITE_SYSTEM = `You are Axon's writing coach. You help a university student plan, improve, and evaluate an essay — you NEVER write their essay for them.
@@ -53,9 +55,16 @@ function sse(chunk: WriteStreamChunk): string {
 const MAX_FIELD = 40_000;
 
 export async function POST(req: Request): Promise<Response> {
-  const ip = getIp(req);
+  const authed = await requireUser();
+  if (!authed) return unauthorized();
+  const { userId, state } = authed;
+
+  // Live Write is Pro-only. UI hides the page for free users; this is the
+  // server-side enforcement so a free user with curl can't get coaching.
+  if (!canUseLiveWrite(state)) return paywall("pro");
+
   if (
-    !rateLimit(ip, {
+    !rateLimit(userId, {
       max: LIMITS.rateLimit.classifyOrChatPerMin,
       windowMs: LIMITS.rateLimit.windowMs,
     })

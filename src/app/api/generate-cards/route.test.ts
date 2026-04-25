@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { __resetRateLimits } from "@/lib/claude";
+import { DEFAULT_STATE } from "@/lib/state";
 
 vi.mock("@/lib/claude", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/claude")>();
@@ -11,8 +12,17 @@ vi.mock("@/lib/claude", async (importOriginal) => {
   };
 });
 
+vi.mock("@/lib/server-auth", () => ({
+  requireUser: vi.fn(async () => ({ userId: "test_user", state: DEFAULT_STATE })),
+  unauthorized: () => Response.json({ error: "Unauthorized" }, { status: 401 }),
+  paywall: (reason: string) => Response.json({ error: "Paywall", reason }, { status: 402 }),
+}));
+
 import { client } from "@/lib/claude";
+import { requireUser } from "@/lib/server-auth";
 import { POST } from "./route";
+
+const mockedRequireUser = requireUser as unknown as ReturnType<typeof vi.fn>;
 
 const mockedCreate = client.messages.create as unknown as ReturnType<typeof vi.fn>;
 
@@ -28,6 +38,14 @@ describe("POST /api/generate-cards", () => {
   beforeEach(() => {
     mockedCreate.mockReset();
     __resetRateLimits();
+    mockedRequireUser.mockResolvedValue({ userId: "test_user", state: DEFAULT_STATE });
+  });
+
+  it("returns 401 when not signed in", async () => {
+    mockedRequireUser.mockResolvedValueOnce(null);
+    const res = await POST(makeReq({ material: "x".repeat(120) }));
+    expect(res.status).toBe(401);
+    expect(mockedCreate).not.toHaveBeenCalled();
   });
 
   it("rejects too-short material with 400", async () => {

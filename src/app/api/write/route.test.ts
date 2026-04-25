@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { __resetRateLimits } from "@/lib/claude";
+import { DEFAULT_STATE, type AppState } from "@/lib/state";
 
 vi.mock("@/lib/claude", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/claude")>();
@@ -11,8 +12,27 @@ vi.mock("@/lib/claude", async (importOriginal) => {
   };
 });
 
+const PRO_STATE: AppState = {
+  ...DEFAULT_STATE,
+  subscription: {
+    status: "active",
+    stripeCustomerId: "cus_test",
+    stripeSubscriptionId: "sub_test",
+    currentPeriodEnd: null,
+  },
+};
+
+vi.mock("@/lib/server-auth", () => ({
+  requireUser: vi.fn(async () => ({ userId: "test_user", state: PRO_STATE })),
+  unauthorized: () => Response.json({ error: "Unauthorized" }, { status: 401 }),
+  paywall: (reason: string) => Response.json({ error: "Paywall", reason }, { status: 402 }),
+}));
+
 import { client } from "@/lib/claude";
+import { requireUser } from "@/lib/server-auth";
 import { POST } from "./route";
+
+const mockedRequireUser = requireUser as unknown as ReturnType<typeof vi.fn>;
 
 const mockedStream = client.messages.stream as unknown as ReturnType<typeof vi.fn>;
 
@@ -54,6 +74,23 @@ describe("POST /api/write", () => {
   beforeEach(() => {
     mockedStream.mockReset();
     __resetRateLimits();
+    mockedRequireUser.mockResolvedValue({ userId: "test_user", state: PRO_STATE });
+  });
+
+  it("returns 401 when not signed in", async () => {
+    mockedRequireUser.mockResolvedValueOnce(null);
+    const res = await POST(makeReq({ prompt: "p", draft: "d", action: "plan" }));
+    expect(res.status).toBe(401);
+    expect(mockedStream).not.toHaveBeenCalled();
+  });
+
+  it("returns 402 with reason 'pro' for free-tier users", async () => {
+    mockedRequireUser.mockResolvedValueOnce({ userId: "test_user", state: DEFAULT_STATE });
+    const res = await POST(makeReq({ prompt: "p", draft: "d", action: "plan" }));
+    expect(res.status).toBe(402);
+    const body = (await res.json()) as { reason: string };
+    expect(body.reason).toBe("pro");
+    expect(mockedStream).not.toHaveBeenCalled();
   });
 
   it("rejects missing prompt with 400", async () => {

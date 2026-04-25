@@ -1,5 +1,6 @@
-import { client, getIp, materialBlock, rateLimit, extractJson } from "@/lib/claude";
+import { client, materialBlock, rateLimit, extractJson } from "@/lib/claude";
 import { LIMITS, MODELS } from "@/lib/constants";
+import { requireUser, unauthorized } from "@/lib/server-auth";
 import type {
   ClassifyErrorRequest,
   ClassifyErrorResponse,
@@ -30,9 +31,12 @@ const CLASSIFICATIONS: ErrorClassification[] = [
 ];
 
 export async function POST(req: Request): Promise<Response> {
-  const ip = getIp(req);
+  const authed = await requireUser();
+  if (!authed) return unauthorized();
+  const { userId } = authed;
+
   if (
-    !rateLimit(ip, {
+    !rateLimit(userId, {
       max: LIMITS.rateLimit.classifyOrChatPerMin,
       windowMs: LIMITS.rateLimit.windowMs,
     })

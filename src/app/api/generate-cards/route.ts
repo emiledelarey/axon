@@ -1,5 +1,6 @@
-import { client, getIp, materialBlock, rateLimit, extractJson } from "@/lib/claude";
+import { client, materialBlock, rateLimit, extractJson } from "@/lib/claude";
 import { LIMITS, MODELS } from "@/lib/constants";
+import { requireUser, unauthorized } from "@/lib/server-auth";
 import type { Card, GenerateCardsRequest, GenerateCardsResponse } from "@/lib/api-types";
 
 const SYSTEM_PROMPT = `You are Axon, an AI study companion that turns pasted study material into active-recall flashcards.
@@ -20,9 +21,12 @@ Coverage rules:
 Output format: a JSON array of card objects. Each object has: concept (string), front (string), question (string), answer (string), working (string), hint (string). Return ONLY the JSON array, no preamble, no code fences.`;
 
 export async function POST(req: Request): Promise<Response> {
-  const ip = getIp(req);
+  const authed = await requireUser();
+  if (!authed) return unauthorized();
+  const { userId } = authed;
+
   if (
-    !rateLimit(ip, {
+    !rateLimit(userId, {
       max: LIMITS.rateLimit.generateCardsPerMin,
       windowMs: LIMITS.rateLimit.windowMs,
     })

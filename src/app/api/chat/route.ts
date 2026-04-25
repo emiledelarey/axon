@@ -1,5 +1,7 @@
-import { client, getIp, materialBlock, rateLimit } from "@/lib/claude";
+import { client, materialBlock, rateLimit } from "@/lib/claude";
 import { LIMITS, MODELS } from "@/lib/constants";
+import { canSendTutorMessage } from "@/lib/entitlements";
+import { requireUser, unauthorized, paywall } from "@/lib/server-auth";
 import type { ChatRequest, ChatStreamChunk } from "@/lib/api-types";
 
 const TUTOR_SYSTEM = `You are Axon, a Socratic study tutor for a university student.
@@ -31,9 +33,12 @@ function sse(chunk: ChatStreamChunk): string {
 }
 
 export async function POST(req: Request): Promise<Response> {
-  const ip = getIp(req);
+  const authed = await requireUser();
+  if (!authed) return unauthorized();
+  const { userId, state } = authed;
+
   if (
-    !rateLimit(ip, {
+    !rateLimit(userId, {
       max: LIMITS.rateLimit.classifyOrChatPerMin,
       windowMs: LIMITS.rateLimit.windowMs,
     })
@@ -49,6 +54,13 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const { material, mode = "tutor", messages = [], studentWorking } = body ?? ({} as ChatRequest);
+
+  // Free-tier monthly cap. Pro is unlimited via canSendTutorMessage → tutorRemaining = Infinity.
+  // Best-effort: read of last-synced state, so a fast burst can briefly exceed the cap. The hard
+  // ceiling is the Anthropic key's spend cap, not this counter.
+  if (mode === "tutor" && !canSendTutorMessage(state)) {
+    return paywall("tutor_quota");
+  }
   if (!material || typeof material !== "string") {
     return Response.json({ error: "Missing material." }, { status: 400 });
   }
