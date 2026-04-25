@@ -1,5 +1,6 @@
 import { client, materialBlock, rateLimit, extractJson } from "@/lib/claude";
 import { LIMITS, MODELS } from "@/lib/constants";
+import { logError } from "@/lib/log";
 import { requireUser, unauthorized } from "@/lib/server-auth";
 import type { Card, GenerateCardsRequest, GenerateCardsResponse } from "@/lib/api-types";
 
@@ -128,7 +129,7 @@ export async function POST(req: Request): Promise<Response> {
     };
     return Response.json(payload);
   } catch (err) {
-    console.error("generate-cards error:", err);
+    logError("api.generate-cards", err);
     return Response.json(
       {
         error: "Couldn't generate cards. Please try again.",

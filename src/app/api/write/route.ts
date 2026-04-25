@@ -1,6 +1,7 @@
 import { client, rateLimit } from "@/lib/claude";
 import { LIMITS, MODELS } from "@/lib/constants";
 import { canUseLiveWrite } from "@/lib/entitlements";
+import { logError } from "@/lib/log";
 import { requireUser, unauthorized, paywall } from "@/lib/server-auth";
 import type { WriteAction, WriteRequest, WriteStreamChunk } from "@/lib/api-types";
 
@@ -146,7 +147,7 @@ ${draft}`;
           ),
         );
       } catch (err) {
-        console.error("write error:", err);
+        logError("api.write", err);
         controller.enqueue(
           encoder.encode(sse({ error: "Writing coach is having trouble. Try again in a moment." })),
         );

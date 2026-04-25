@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { supabase } from "@/lib/supabase";
+import { logError, logInfo } from "@/lib/log";
 import { DEFAULT_STATE, type AppState, type SubscriptionStatus } from "@/lib/state";
 
 const TABLE = "user_state";
@@ -24,7 +25,7 @@ const TABLE = "user_state";
 export async function POST(req: Request): Promise<Response> {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!secret) {
-    console.error("STRIPE_WEBHOOK_SECRET not set — rejecting webhook.");
+    logError("webhook.stripe.config", "STRIPE_WEBHOOK_SECRET not set");
     return new Response("Webhook not configured.", { status: 500 });
   }
 
@@ -39,7 +40,7 @@ export async function POST(req: Request): Promise<Response> {
   try {
     event = stripe().webhooks.constructEvent(rawBody, sig, secret);
   } catch (err) {
-    console.error("webhook signature verification failed:", err);
+    logError("webhook.stripe.signature", err);
     return new Response("Bad signature.", { status: 400 });
   }
 
@@ -93,10 +94,10 @@ export async function POST(req: Request): Promise<Response> {
       }
       default:
         // Log unknown types so we can extend as needed.
-        console.log("stripe webhook unhandled:", event.type);
+        logInfo("webhook.stripe.unhandled", event.type);
     }
   } catch (err) {
-    console.error("webhook handler error:", err);
+    logError("webhook.stripe.handler", err, { eventType: event.type });
     return new Response("Handler error.", { status: 500 });
   }
 

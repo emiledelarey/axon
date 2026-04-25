@@ -6,9 +6,10 @@ import { test, expect } from "@playwright/test";
  * minimum happy path the plan requires to exist end-to-end after the monolith
  * is split; deeper UX tests come in later sessions.
  */
-// TODO(session-3+): re-enable once Clerk test-mode tokens or a bypass user is
-// wired in. With Session 2's auth gate, the landing CTAs now route to /sign-up
-// instead of finishWithDemo, so this spec no longer reaches the dashboard.
+// TODO(launch-prep): re-enable after wiring `@clerk/testing` and a CLERK_TESTING_TOKEN
+// from the Clerk dashboard. The signed-in flow can't be reached without an authed
+// browser context now that landing CTAs route to /sign-up. Public-path smoke lives
+// in e2e/public-smoke.spec.ts and runs unconditionally.
 test.skip("onboarding skip → study a demo card → micro-lesson fallback → next card", async ({
   page,
 }) => {

@@ -1,5 +1,6 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { stripe } from "@/lib/stripe";
+import { logError } from "@/lib/log";
 
 /**
  * POST /api/checkout
@@ -45,7 +46,7 @@ export async function POST(req: Request): Promise<Response> {
     }
     return Response.json({ url: session.url });
   } catch (err) {
-    console.error("checkout error:", err);
+    logError("api.checkout", err);
     return Response.json(
       { error: "Could not start checkout. Try again in a moment." },
       { status: 500 },

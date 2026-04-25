@@ -1,6 +1,7 @@
 import { client, materialBlock, rateLimit } from "@/lib/claude";
 import { LIMITS, MODELS } from "@/lib/constants";
 import { canSendTutorMessage } from "@/lib/entitlements";
+import { logError } from "@/lib/log";
 import { requireUser, unauthorized, paywall } from "@/lib/server-auth";
 import type { ChatRequest, ChatStreamChunk } from "@/lib/api-types";
 
@@ -125,7 +126,7 @@ export async function POST(req: Request): Promise<Response> {
           ),
         );
       } catch (err) {
-        console.error("chat error:", err);
+        logError("api.chat", err);
         controller.enqueue(
           encoder.encode(sse({ error: "Tutor is having trouble. Try again in a moment." })),
         );

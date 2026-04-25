@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { stripe } from "@/lib/stripe";
 import { supabase } from "@/lib/supabase";
+import { logError } from "@/lib/log";
 import type { AppState } from "@/lib/state";
 
 /**
@@ -19,7 +20,7 @@ export async function POST(req: Request): Promise<Response> {
     .eq("user_id", userId)
     .maybeSingle();
   if (error) {
-    console.error("billing-portal load error:", error);
+    logError("billing-portal.load", error);
     return Response.json({ error: "Could not load account." }, { status: 500 });
   }
   const state = data?.state as AppState | undefined;
@@ -38,7 +39,7 @@ export async function POST(req: Request): Promise<Response> {
     });
     return Response.json({ url: session.url });
   } catch (err) {
-    console.error("billing-portal error:", err);
+    logError("billing-portal.create", err);
     return Response.json({ error: "Could not open billing portal. Try again." }, { status: 500 });
   }
 }

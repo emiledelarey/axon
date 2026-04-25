@@ -1,6 +1,7 @@
 import "server-only";
 import { auth } from "@clerk/nextjs/server";
 import { supabase } from "@/lib/supabase";
+import { logError } from "@/lib/log";
 import { DEFAULT_STATE, type AppState } from "@/lib/state";
 
 const TABLE = "user_state";
@@ -26,7 +27,7 @@ export async function requireUser(): Promise<AuthedUser | null> {
     .maybeSingle();
 
   if (error) {
-    console.error("requireUser supabase error:", error);
+    logError("server-auth.load", error, { userId });
     throw new Error("Could not load user state");
   }
 

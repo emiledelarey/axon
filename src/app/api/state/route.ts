@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { supabase } from "@/lib/supabase";
+import { logError } from "@/lib/log";
 import { DEFAULT_STATE, type AppState } from "@/lib/state";
 
 const TABLE = "user_state";
@@ -23,7 +24,7 @@ export async function GET(): Promise<Response> {
     .maybeSingle();
 
   if (error) {
-    console.error("state GET error:", error);
+    logError("api.state.get", error);
     return Response.json({ error: "Could not load state" }, { status: 500 });
   }
 
@@ -62,7 +63,7 @@ export async function PUT(req: Request): Promise<Response> {
     });
 
   if (error) {
-    console.error("state PUT error:", error);
+    logError("api.state.put", error);
     return Response.json({ error: "Could not save state" }, { status: 500 });
   }
 

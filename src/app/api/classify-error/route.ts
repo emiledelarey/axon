@@ -1,5 +1,6 @@
 import { client, materialBlock, rateLimit, extractJson } from "@/lib/claude";
 import { LIMITS, MODELS } from "@/lib/constants";
+import { logError } from "@/lib/log";
 import { requireUser, unauthorized } from "@/lib/server-auth";
 import type {
   ClassifyErrorRequest,
@@ -134,7 +135,7 @@ Classify the error, walk back the prerequisite chain, and write a 90-second micr
 
     return Response.json(normalised);
   } catch (err) {
-    console.error("classify-error error:", err);
+    logError("api.classify-error", err);
     return Response.json(
       {
         error: "Couldn't run the error classifier. Try again.",

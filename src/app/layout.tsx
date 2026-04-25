@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
+import { Analytics } from "@vercel/analytics/next";
 import { Providers } from "@/components/providers/Providers";
 import "./globals.css";
 
@@ -98,6 +99,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <html lang="en" className={`${serif.variable} ${plex.variable} ${jet.variable}`}>
         <body>
           <Providers>{children}</Providers>
+          <Analytics />
         </body>
       </html>
     </ClerkProvider>
