@@ -8,6 +8,9 @@ import type {
   ErrorClassification,
 } from "@/lib/api-types";
 
+// Non-streaming Claude call; can exceed the 10s default on slow runs.
+export const maxDuration = 60;
+
 const SYSTEM_PROMPT = `You are Axon's error classifier. A student just missed a flashcard. Your job is to:
 
 1. Classify the error into ONE of: knowledge-gap, misconception, careless, prerequisite-gap.

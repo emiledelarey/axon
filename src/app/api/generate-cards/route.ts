@@ -4,6 +4,10 @@ import { logError } from "@/lib/log";
 import { requireUser, unauthorized } from "@/lib/server-auth";
 import type { Card, GenerateCardsRequest, GenerateCardsResponse } from "@/lib/api-types";
 
+// Sonnet generating 10 cards from a long paste regularly exceeds the 10s
+// default; bump to Hobby+Fluid's max so we stop returning HTML on timeout.
+export const maxDuration = 60;
+
 const SYSTEM_PROMPT = `You are Axon, an AI study companion that turns pasted study material into active-recall flashcards.
 
 Rules for card design:

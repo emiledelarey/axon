@@ -2,16 +2,13 @@
 
 import { Icon } from "../ui/Icon";
 
-/**
- * Floating feedback button. Opens the user's default mail client pre-filled
- * with context (page + viewport) so bug reports actually contain signal.
- * Target is Emile's personal inbox while we're pre-launch — swap to a proper
- * /api/feedback endpoint + modal once volume warrants it.
- */
+// Gmail's web compose URL works without a registered OS mailto handler, which
+// is the default state on Windows 11. Swap to /api/feedback + modal once
+// volume warrants it.
+const FEEDBACK_TO = "emiledelarey@gmail.com";
+
 export function FeedbackButton() {
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // Enrich the mailto on the fly so we capture page + viewport, which is
-    // impossible from a static href.
     if (typeof window === "undefined") return;
     const page = window.location.pathname + window.location.search;
     const viewport = `${window.innerWidth}×${window.innerHeight}`;
@@ -25,16 +22,22 @@ export function FeedbackButton() {
       `Viewport: ${viewport}`,
       `UA: ${ua}`,
     ].join("\n");
-    const href = `mailto:emiledelarey@gmail.com?subject=${encodeURIComponent(
-      "Axon feedback",
-    )}&body=${encodeURIComponent(body)}`;
-    e.currentTarget.href = href;
+    const params = new URLSearchParams({
+      view: "cm",
+      fs: "1",
+      to: FEEDBACK_TO,
+      su: "Axon feedback",
+      body,
+    });
+    e.currentTarget.href = `https://mail.google.com/mail/?${params.toString()}`;
   };
 
   return (
     <a
-      href="mailto:emiledelarey@gmail.com?subject=Axon%20feedback"
+      href={`https://mail.google.com/mail/?view=cm&fs=1&to=${FEEDBACK_TO}&su=Axon%20feedback`}
       onClick={handleClick}
+      target="_blank"
+      rel="noopener noreferrer"
       className="feedback-btn"
     >
       <Icon.msg size={12} /> Feedback
